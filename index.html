@@ -704,9 +704,11 @@
     DIFFICULTIES.forEach(function(d){
       var btn = document.createElement("button");
       btn.className = "diff-btn";
-      var swHues = d.key==="mixed" ? [20,140,260] : d.key==="easy" ? [200] : d.key==="medium" ? [30,210] : [10,190];
-      var dots = swHues.map(function(h){
-        return "<span class=\"swatch\" style=\"background:" + hsbToRgb(h, d.sat[1], d.bri[1]) + "\"></span>";
+      var swatchHue = 205;
+      var swatches = d.key==="mixed" ? [60,180,300].map(function(h){ return {h:h, s:88, b:94}; })
+        : (d.key==="easy" ? [90] : d.key==="medium" ? [42,90] : [22,56,90]).map(function(s){ return {h:swatchHue, s:s, b:92}; });
+      var dots = swatches.map(function(sw){
+        return "<span class=\"swatch\" style=\"background:" + hsbToRgb(sw.h, sw.s, sw.b) + "\"></span>";
       }).join("");
       btn.innerHTML = "<div class=\"dot-row\">" + dots + "</div><h3>" + d.label + "</h3><p>" + d.desc + "</p>";
       btn.addEventListener("click", function(){ startQuiz(d.key); });
