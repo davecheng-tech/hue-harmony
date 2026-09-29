@@ -288,13 +288,12 @@
 <div class="wrap">
   <header class="top">
     <h1>Hue Harmony</h1>
-    <p>Practice colour schemes on an HSB wheel — angle is hue, distance from centre is saturation.</p>
+    <p>Practice colour schemes on an HSB wheel</p>
   </header>
 
   <!-- START SCREEN -->
   <section id="screen-start" class="card">
-    <h2 style="font-size:19px;margin-bottom:2px;">Choose a level</h2>
-    <p style="color:var(--text-dim);font-size:13px;margin:6px 0 0;">10 questions, freshly randomised each round.</p>
+    <h2 style="font-size:19px;margin-bottom:14px;">Choose a level</h2>
 
     <div class="diff-grid" id="diff-grid"></div>
   </section>
@@ -349,12 +348,12 @@
   var DIFFICULTIES = [
     {
       key:"easy", label:"Easy", mode:"identify",
-      desc:"Name the relationship. Exact angles.",
+      desc:"Name the relationship.",
       sat:[72,96], bri:[85,100], tol:0, allowNA:false, naProb:0, decoyNear:false
     },
     {
       key:"medium", label:"Medium", mode:"identify",
-      desc:"Name it — angles drift a little, some are trick questions.",
+      desc:"Name it, but some might be tricky.",
       sat:[60,92], bri:[78,98], tol:10, allowNA:true, naProb:0.35, decoyNear:false
     },
     {
@@ -364,7 +363,7 @@
     },
     {
       key:"mixed", label:"Mixed", mode:"mixed",
-      desc:"A shuffled mix of every level above.",
+      desc:"A little bit of everything.",
       sat:[15,96], bri:[55,100], tol:10, allowNA:true, naProb:0.2
     }
   ];
