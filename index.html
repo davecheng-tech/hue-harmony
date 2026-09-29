@@ -771,7 +771,8 @@
       q.shown.forEach(function(s){
         var row = document.createElement("div");
         row.className = "given-label";
-        row.innerHTML = "<span class=\"given-swatch\" style=\"background:" + hsbToRgb(s.h,s.s,s.b) + "\"></span> given " + s.tag + " — hue " + fmtDeg(s.h);
+        var label = /^\d+$/.test(s.tag) ? "Colour " + s.tag : s.tag;
+        row.innerHTML = "<span class=\"given-swatch\" style=\"background:" + hsbToRgb(s.h,s.s,s.b) + "\"></span> " + label + " — hue " + fmtDeg(s.h);
         giv.appendChild(row);
       });
       givenInfo.appendChild(giv);
