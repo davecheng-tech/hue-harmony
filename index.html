@@ -1,0 +1,887 @@
+<title>Hue Harmony</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#f6f4f0;
+    --panel:#ffffff;
+    --panel-2:#efece6;
+    --border:#ddd8cf;
+    --text:#18181b;
+    --text-dim:#6b6b74;
+    --accent:#c9660a;
+    --accent-ink:#ffffff;
+    --good:#1f8a4c;
+    --good-bg:#e5f5ea;
+    --bad:#c73a2b;
+    --bad-bg:#fbe8e5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121214;
+      --panel:#1b1b1f;
+      --panel-2:#232329;
+      --border:#323238;
+      --text:#f2f1ee;
+      --text-dim:#9d9da6;
+      --accent:#ffb454;
+      --accent-ink:#1a1200;
+      --good:#6bcf8f;
+      --good-bg:#173023;
+      --bad:#ff7a6b;
+      --bad-bg:#331917;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121214;
+    --panel:#1b1b1f;
+    --panel-2:#232329;
+    --border:#323238;
+    --text:#f2f1ee;
+    --text-dim:#9d9da6;
+    --accent:#ffb454;
+    --accent-ink:#1a1200;
+    --good:#6bcf8f;
+    --good-bg:#173023;
+    --bad:#ff7a6b;
+    --bad-bg:#331917;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    padding-inline:16px;
+    padding-block:28px 40px;
+  }
+  .wrap{max-width:880px;margin:0 auto;}
+  h1,h2,h3{font-family:'Space Grotesk',system-ui,sans-serif;margin:0;}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+  header.top{display:flex;flex-direction:column;gap:4px;margin-bottom:22px;}
+  header.top h1{font-size:clamp(28px,5vw,38px);letter-spacing:-0.02em;}
+  header.top p{margin:0;color:var(--text-dim);font-size:14.5px;max-width:60ch;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:24px;
+  }
+
+  /* ---- start screen ---- */
+  .diff-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+    margin:20px 0 22px;
+  }
+  .diff-btn{
+    text-align:left;
+    border:1.5px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text);
+    border-radius:14px;
+    padding:16px 16px 14px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    transition:border-color .15s, transform .1s;
+  }
+  .diff-btn:hover{border-color:var(--accent);transform:translateY(-1px);}
+  .diff-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .diff-btn .dot-row{display:flex;gap:5px;margin-bottom:10px;}
+  .diff-btn .swatch{width:14px;height:14px;border-radius:50%;}
+  .diff-btn h3{font-size:16px;margin-bottom:4px;}
+  .diff-btn p{margin:0;font-size:12.5px;color:var(--text-dim);line-height:1.4;}
+
+  /* ---- quiz screen ---- */
+  .quiz-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .quit-btn{
+    background:transparent;
+    color:var(--text-dim);
+    border:1px solid var(--border);
+    border-radius:99px;
+    padding:6px 12px 6px 10px;
+    font-size:12.5px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    white-space:nowrap;
+  }
+  .quit-btn:hover{border-color:var(--bad);color:var(--bad);}
+  .quit-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .progress-track{
+    flex:1;
+    min-width:120px;
+    height:8px;
+    background:var(--panel-2);
+    border-radius:99px;
+    overflow:hidden;
+  }
+  .progress-fill{height:100%;background:var(--accent);width:0%;transition:width .25s;}
+  .score-pill{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    padding:5px 10px;
+    border-radius:99px;
+    white-space:nowrap;
+  }
+
+  .quiz-body{
+    display:grid;
+    grid-template-columns:minmax(240px,360px) 1fr;
+    gap:24px;
+  }
+  @media (max-width:620px){
+    .quiz-body{grid-template-columns:1fr;}
+  }
+
+  .wheel-box{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    max-width:320px;
+    margin:30px auto 26px;
+  }
+  .wheel-disc{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    box-shadow:0 0 0 1px var(--border), 0 6px 20px -8px rgba(0,0,0,.35);
+  }
+  .wheel-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;font-family:'IBM Plex Mono',monospace;}
+  .wheel-svg .pt-label{font-size:5.5px;font-weight:700;fill:var(--text);}
+  .wheel-svg .tick-label{font-size:4px;font-weight:600;fill:var(--text-dim);opacity:0.65;}
+  .opt-hit{cursor:pointer;}
+  .opt-hit:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+
+  .q-panel{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .q-prompt{font-size:16.5px;line-height:1.45;font-weight:500;}
+  .q-prompt .hue-val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--accent);}
+
+  .opt-list{display:flex;flex-direction:column;gap:9px;}
+  .opt-btn{
+    text-align:left;
+    border:1.5px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text);
+    border-radius:11px;
+    padding:11px 14px;
+    font-size:14.5px;
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .opt-btn:hover:not(:disabled){border-color:var(--accent);}
+  .opt-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .opt-btn:disabled{cursor:default;}
+  .opt-btn .letter{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:12px;
+    width:20px;height:20px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--panel);
+    border:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .opt-btn.correct{border-color:var(--good);background:var(--good-bg);}
+  .opt-btn.wrong{border-color:var(--bad);background:var(--bad-bg);}
+
+  .feedback{
+    border-radius:12px;
+    padding:13px 15px;
+    font-size:13.5px;
+    line-height:1.5;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+  }
+  .feedback.correct{border-color:var(--good);background:var(--good-bg);color:var(--text);}
+  .feedback.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--text);}
+  .feedback strong{font-family:'Space Grotesk',sans-serif;}
+
+  .next-row{display:flex;justify-content:flex-end;}
+  .btn-accent{
+    background:var(--accent);
+    color:var(--accent-ink);
+    border:none;
+    border-radius:10px;
+    padding:11px 20px;
+    font-size:14px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+  .btn-accent:hover{filter:brightness(1.06);}
+  .btn-accent:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+  .btn-ghost{
+    background:transparent;
+    color:var(--text);
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    padding:10px 18px;
+    font-size:14px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+
+  .given-label{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;color:var(--text-dim);margin-top:2px;
+  }
+  .given-swatch{width:11px;height:11px;border-radius:50%;border:1px solid var(--border);}
+  .place-hint{
+    font-size:13px;
+    color:var(--text-dim);
+    font-style:italic;
+    line-height:1.5;
+    padding:2px 0 4px;
+  }
+
+  /* ---- end screen ---- */
+  .end-card{text-align:center;padding:38px 24px;}
+  .end-score{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(48px,10vw,64px);
+    font-weight:700;
+    margin:10px 0 2px;
+  }
+  .end-score span{font-size:0.4em;color:var(--text-dim);font-weight:600;}
+  .end-msg{color:var(--text-dim);font-size:15px;margin-bottom:22px;}
+  .end-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .breakdown{
+    margin-top:26px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+    gap:10px;
+    text-align:left;
+  }
+  .breakdown .row{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:12.5px;
+  }
+  .breakdown .row .n{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;}
+
+  [hidden]{display:none!important;}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Hue Harmony</h1>
+    <p>Practice colour schemes on an HSB wheel — angle is hue, distance from centre is saturation.</p>
+  </header>
+
+  <!-- START SCREEN -->
+  <section id="screen-start" class="card">
+    <h2 style="font-size:19px;margin-bottom:2px;">Choose a level</h2>
+    <p style="color:var(--text-dim);font-size:13px;margin:6px 0 0;">10 questions, freshly randomised each round.</p>
+
+    <div class="diff-grid" id="diff-grid"></div>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section id="screen-quiz" class="card" hidden>
+    <div class="quiz-head">
+      <button class="quit-btn" id="quit-btn" title="Abort this round and return to the level menu">&larr; Main menu</button>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="score-pill" id="score-pill">0 / 10</div>
+    </div>
+
+    <div class="quiz-body">
+      <div class="wheel-box">
+        <div class="wheel-disc" id="wheel-disc"></div>
+        <svg class="wheel-svg" id="wheel-svg" viewBox="0 0 100 100"></svg>
+      </div>
+
+      <div class="q-panel">
+        <div class="q-prompt" id="q-prompt"></div>
+        <div id="given-info"></div>
+        <div class="opt-list" id="opt-list"></div>
+        <div class="feedback" id="feedback" hidden></div>
+        <div class="next-row">
+          <button class="btn-accent" id="next-btn" hidden>Next question →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- END SCREEN -->
+  <section id="screen-end" class="card end-card" hidden>
+    <h2 style="font-size:18px;color:var(--text-dim);font-weight:600;">Round complete</h2>
+    <div class="end-score"><span id="end-score-num">0</span><span>/10</span></div>
+    <div class="end-msg" id="end-msg"></div>
+    <div class="end-actions">
+      <button class="btn-accent" id="replay-btn">Play again</button>
+      <button class="btn-ghost" id="change-level-btn">Change level</button>
+    </div>
+    <div class="breakdown" id="breakdown"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var RELATIONSHIPS = ["Monochromatic","Analogous","Complementary","Split-Complementary","Triadic","Tetradic"];
+  var NA_LABEL = "No relationship applies";
+  var TOTAL_Q = 10;
+
+  var DIFFICULTIES = [
+    {
+      key:"easy", label:"Easy", mode:"identify",
+      desc:"Name the relationship. Exact angles.",
+      sat:[72,96], bri:[85,100], tol:0, allowNA:false, naProb:0, decoyNear:false
+    },
+    {
+      key:"medium", label:"Medium", mode:"identify",
+      desc:"Name it — angles drift a little, some are trick questions.",
+      sat:[60,92], bri:[78,98], tol:10, allowNA:true, naProb:0.35, decoyNear:false
+    },
+    {
+      key:"hard", label:"Hard", mode:"place",
+      desc:"Click the wheel to place the missing colour.",
+      sat:[60,92], bri:[78,98], tol:10, allowNA:false, naProb:0
+    },
+    {
+      key:"mixed", label:"Mixed", mode:"mixed",
+      desc:"A shuffled mix of every level above.",
+      sat:[15,96], bri:[55,100], tol:10, allowNA:true, naProb:0.2
+    }
+  ];
+
+  var state = { diff:null, quiz:[], idx:0, score:0, answered:false, results:[] };
+
+  // ---------- math helpers ----------
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function norm(d){ return ((d % 360) + 360) % 360; }
+  function jitter(max){ return rand(-max,max); }
+  function angDiff(a,b){ var d = Math.abs(norm(a)-norm(b)) % 360; return d>180 ? 360-d : d; }
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
+  function fmtDeg(n){ return Math.round(n) + "°"; }
+
+  function hsbToRgb(h,s,b){
+    h = norm(h); s/=100; b/=100;
+    var c = b*s, x = c*(1-Math.abs((h/60)%2-1)), m = b-c, r,g,bl;
+    if(h<60){r=c;g=x;bl=0;} else if(h<120){r=x;g=c;bl=0;}
+    else if(h<180){r=0;g=c;bl=x;} else if(h<240){r=0;g=x;bl=c;}
+    else if(h<300){r=x;g=0;bl=c;} else {r=c;g=0;bl=x;}
+    r=Math.round((r+m)*255); g=Math.round((g+m)*255); bl=Math.round((bl+m)*255);
+    return "rgb(" + r + "," + g + "," + bl + ")";
+  }
+
+  // wheel coords: hue 0deg = top (matches CSS conic-gradient 'from 0deg'), clockwise
+  function hueToXY(h, satFrac){
+    var rad = h * Math.PI/180;
+    var x = 50 + 50*satFrac*Math.sin(rad);
+    var y = 50 - 50*satFrac*Math.cos(rad);
+    return [x,y];
+  }
+
+  // ---------- wheel background ----------
+  function buildWheelGradient(){
+    var stops = [];
+    for(var d=0; d<=360; d+=6){
+      stops.push("hsl(" + d + ",100%,50%) " + d + "deg");
+    }
+    return "radial-gradient(circle at 50% 50%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%), " +
+           "conic-gradient(from 0deg, " + stops.join(",") + ")";
+  }
+  document.getElementById("wheel-disc").style.background = buildWheelGradient();
+
+  // ---------- question generators ----------
+  var ANALOGOUS_SPACING = 26;
+
+  var MONO_MAX_SPREAD = 10;
+
+  function genShape(type, base, tol){
+    var hues, offset;
+    switch(type){
+      case "Monochromatic":
+        // cap the WHOLE set's spread at MONO_MAX_SPREAD, rather than jittering each
+        // hue independently — independent jitter can double the pairwise spread
+        var spread = tol > 0 ? rand(0, MONO_MAX_SPREAD) : 0;
+        hues = [0,1,2,3].map(function(){ return norm(base + rand(0, spread)); });
+        break;
+      case "Analogous":
+        hues = [0,1,2,3].map(function(i){ return norm(base + i*ANALOGOUS_SPACING + jitter(tol*0.4)); });
+        break;
+      case "Complementary":
+        hues = [base, norm(base + 180 + jitter(tol))];
+        break;
+      case "Split-Complementary":
+        hues = [base, norm(base + 150 + jitter(tol*0.7)), norm(base + 210 + jitter(tol*0.7))];
+        break;
+      case "Triadic":
+        hues = [base, norm(base + 120 + jitter(tol*0.7)), norm(base + 240 + jitter(tol*0.7))];
+        break;
+      case "Tetradic":
+        offset = pick([50,60,70,80,100,110,120,130]);
+        hues = [base, norm(base + 180 + jitter(tol*0.6)), norm(base + offset), norm(base + offset + 180 + jitter(tol*0.6))];
+        break;
+    }
+    return hues;
+  }
+
+  function explainIdentify(type, hues){
+    var h = hues.map(fmtDeg).join(", ");
+    var lines = "Hues plotted: " + h + ". ";
+    if(type === "Monochromatic"){
+      var maxD = 0;
+      for(var i=0;i<hues.length;i++) for(var j=i+1;j<hues.length;j++) maxD = Math.max(maxD, angDiff(hues[i],hues[j]));
+      lines += maxD < 1 ? "They're all exactly the same hue — only saturation and brightness differ, the definition of monochromatic."
+        : "They sit within " + fmtDeg(maxD) + " of each other with different saturation/brightness — still one hue family, read as monochromatic.";
+    } else if(type === "Analogous"){
+      var step = angDiff(hues[1],hues[0]);
+      lines += "Each hue steps about " + fmtDeg(step) + " from the last, all in one direction across a contiguous span — a regular analogous fan.";
+    } else if(type === "Complementary"){
+      lines += "They're " + fmtDeg(angDiff(hues[0],hues[1])) + " apart — close to the ideal 180°, so complementary.";
+    } else if(type === "Split-Complementary"){
+      var comp = norm(hues[0]+180);
+      lines += "The true complement of " + fmtDeg(hues[0]) + " would be " + fmtDeg(comp) + ", but the other two colours sit beside it (not on it) — a narrow \"Y\" avoiding the complement.";
+    } else if(type === "Triadic"){
+      lines += "Roughly 120° apart from each other — a perfect three-point \"Y\".";
+    } else if(type === "Tetradic"){
+      lines += "Two pairs, each close to 180° apart, crossing the wheel like an \"X\".";
+    }
+    return lines;
+  }
+
+  function explainNA(variant, detail){
+    if(variant === "pair"){
+      return "These two hues are " + fmtDeg(detail.gap) + " apart — too wide to read as one analogous step, but not close to 120° (triadic), 150°/210° (split-complementary) or 180° (complementary) either. No standard scheme fits, so this is " + NA_LABEL.toLowerCase() + ".";
+    }
+    return "Three of the hues form a tight, evenly-spaced run, but the last one jumps " + fmtDeg(detail.gap) + " away, breaking the contiguous span an analogous fan needs — so " + NA_LABEL.toLowerCase() + ".";
+  }
+
+  function genNAShape(tol){
+    if(Math.random() < 0.5){
+      // avoid gaps near complementary(180)/split-comp(150)/triadic(120), and clear of the
+      // analogous single-step range (~12-46) so a 2-hue pair never reads as "one fan step"
+      var meaningful = [120,150,180];
+      var base = rand(0,360), gap, guard = 0;
+      do { gap = rand(50,158); guard++; }
+      while(guard < 200 && meaningful.some(function(m){ return Math.abs(gap-m) <= tol+8; }));
+      return { hues:[base, norm(base+gap)], variant:"pair", detail:{gap:gap} };
+    }
+    var b = rand(0,360), spacing = ANALOGOUS_SPACING + jitter(3);
+    var cluster = [b, norm(b+spacing), norm(b+2*spacing)];
+    var jumpSign = Math.random()<0.5 ? 1 : -1;
+    var jump = rand(110,170);
+    var outlier = norm(b + 2*spacing + jumpSign*jump);
+    return { hues: cluster.concat([outlier]), variant:"fan", detail:{gap:jump} };
+  }
+
+  var MONO_SAT_RANGE = [16, 97];
+  var MONO_BRI_RANGE = [42, 100];
+
+  function stratifiedSpread(n, lo, hi){
+    var step = (hi-lo)/n;
+    var vals = [];
+    for(var i=0;i<n;i++) vals.push(lo + step*i + rand(step*0.15, step*0.85));
+    return shuffle(vals);
+  }
+
+  function buildOptions(correctLabel, allowNA){
+    var pool = RELATIONSHIPS.concat(allowNA ? [NA_LABEL] : []);
+    var wrongPool = pool.filter(function(l){ return l !== correctLabel; });
+    var wrongs = shuffle(wrongPool).slice(0,3);
+    return shuffle([correctLabel].concat(wrongs));
+  }
+
+  function genIdentifyQuestion(params){
+    if(params.allowNA && Math.random() < (params.naProb || 0)){
+      var na = genNAShape(params.tol);
+      var naPoints = na.hues.map(function(h,i){
+        return { h:h, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), label:String(i+1) };
+      });
+      return {
+        mode:"identify",
+        points: naPoints,
+        prompt: "Which colour relationship is plotted on the wheel?",
+        options: buildOptions(NA_LABEL, true),
+        correctLabel: NA_LABEL,
+        explanation: explainNA(na.variant, na.detail)
+      };
+    }
+
+    var type = pick(RELATIONSHIPS);
+    var base = rand(0,360);
+    var hues = genShape(type, base, params.tol);
+    var sats, bris;
+    if(type === "Monochromatic"){
+      sats = stratifiedSpread(hues.length, MONO_SAT_RANGE[0], MONO_SAT_RANGE[1]);
+      bris = stratifiedSpread(hues.length, MONO_BRI_RANGE[0], MONO_BRI_RANGE[1]);
+    }
+    var points = hues.map(function(h,i){
+      return {
+        h:h,
+        s: sats ? sats[i] : rand(params.sat[0],params.sat[1]),
+        b: bris ? bris[i] : rand(params.bri[0],params.bri[1]),
+        label:String(i+1)
+      };
+    });
+    return {
+      mode:"identify",
+      points: points,
+      prompt: "Which colour relationship is plotted on the wheel?",
+      options: buildOptions(type, params.allowNA),
+      correctLabel: type,
+      explanation: explainIdentify(type, hues)
+    };
+  }
+
+  function genPlaceQuestion(params){
+    var type = pick(RELATIONSHIPS);
+    var base = rand(0,360);
+    var shown = [], targets = [], prompt = "", offset, h1, h1c, h2;
+
+    switch(type){
+      case "Monochromatic":
+        shown = [{h:base, s:rand(MONO_SAT_RANGE[0],MONO_SAT_RANGE[1]), b:rand(MONO_BRI_RANGE[0],MONO_BRI_RANGE[1]), tag:"Given"}];
+        targets = [base];
+        prompt = "Pick the colour that belongs to the <b>same monochromatic family</b> as the colour shown (hue <span class=\"mono hue-val\">" + fmtDeg(base) + "</span>).";
+        break;
+      case "Analogous":
+        var aSpacing = ANALOGOUS_SPACING;
+        h2 = norm(base + aSpacing);
+        shown = [
+          {h:base, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"1"},
+          {h:h2, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"2"}
+        ];
+        targets = [norm(base + 2*aSpacing)];
+        prompt = "These two colours step " + fmtDeg(aSpacing) + " apart in a regular <b>analogous</b> fan. Pick the colour that continues the pattern.";
+        break;
+      case "Complementary":
+        shown = [{h:base, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"Given"}];
+        targets = [norm(base+180)];
+        prompt = "Pick this colour's <b>complementary</b> partner.";
+        break;
+      case "Split-Complementary":
+        var flankOffset = Math.random() < 0.5 ? 150 : 210;
+        var givenFlank = norm(base + flankOffset);
+        var targetFlank = norm(base + (flankOffset === 150 ? 210 : 150));
+        shown = [
+          {h:base, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"1"},
+          {h:givenFlank, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"2"}
+        ];
+        targets = [targetFlank];
+        prompt = "These two colours are the base and one flank of a <b>split-complementary</b> scheme. Pick the colour that completes it — the other flank, avoiding the direct complement.";
+        break;
+      case "Triadic":
+        h2 = norm(base+120);
+        shown = [
+          {h:base, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"1"},
+          {h:h2, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"2"}
+        ];
+        targets = [norm(base+240)];
+        prompt = "These two colours are part of a <b>triadic</b> (120°) trio. Pick the third point.";
+        break;
+      case "Tetradic":
+        offset = pick([50,60,70,80,100,110,120,130]);
+        h1 = base; h1c = norm(base+180); h2 = norm(base+offset);
+        shown = [
+          {h:h1, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"1"},
+          {h:h1c, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"2"},
+          {h:h2, s:rand(params.sat[0],params.sat[1]), b:rand(params.bri[0],params.bri[1]), tag:"3"}
+        ];
+        targets = [norm(h2+180)];
+        prompt = "Three corners of a <b>tetradic</b> \"X\" are shown (two complementary pairs). Pick the colour that completes it.";
+        break;
+    }
+
+    var targetsLabel = "Target hue" + (targets.length>1 ? "s" : "") + ": " + targets.map(fmtDeg).join(" or ") +
+      " (within " + params.tol + "° counts).";
+
+    return { mode:"place", type:type, shown:shown, targets:targets, tol:params.tol, prompt:prompt, targetsLabel:targetsLabel };
+  }
+
+  function genQuestion(diffKey){
+    var d = DIFFICULTIES.filter(function(x){ return x.key===diffKey; })[0];
+    var params = d.key === "mixed" ? pick(DIFFICULTIES.slice(0,3)) : d;
+    var mode = d.key === "mixed" ? params.mode : d.mode;
+    return mode === "identify" ? genIdentifyQuestion(params) : genPlaceQuestion(params);
+  }
+
+  // ---------- rendering: wheel points ----------
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  function svgEl(tag, attrs){
+    var el = document.createElementNS(SVG_NS, tag);
+    for(var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  function clearSvg(){
+    var svg = document.getElementById("wheel-svg");
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    return svg;
+  }
+
+  function drawPoint(svg, h, satFrac, color, label, style, onClick){
+    var xy = hueToXY(h, satFrac);
+    var g = svgEl("g", {});
+    var line = svgEl("line", {
+      x1:"50", y1:"50", x2:xy[0], y2:xy[1],
+      stroke: style === "option" ? "var(--text-dim)" : "var(--text)",
+      "stroke-width":"0.5",
+      "stroke-dasharray": style === "option" ? "2,1.5" : "1.4,0",
+      opacity: style === "option" ? "0.55" : "0.7"
+    });
+    g.appendChild(line);
+
+    var r = (style === "given" || style === "correct" || style === "wrong") ? 5.2 : 4.4;
+    var circle = svgEl("circle", {
+      cx:xy[0], cy:xy[1], r:r, fill:color,
+      stroke: style === "correct" ? "var(--good)" : style === "wrong" ? "var(--bad)" : "#ffffff",
+      "stroke-width": style === "correct" || style === "wrong" ? "1.6" : "1"
+    });
+    if(onClick){
+      circle.setAttribute("class","opt-hit");
+      circle.setAttribute("tabindex","0");
+      circle.setAttribute("role","button");
+      circle.addEventListener("click", onClick);
+      circle.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); onClick(); } });
+    }
+    g.appendChild(circle);
+
+    if(label){
+      var txt = svgEl("text", {
+        x:xy[0], y:xy[1]-r-2.4, "text-anchor":"middle", "class":"pt-label"
+      });
+      txt.textContent = label;
+      g.appendChild(txt);
+    }
+    svg.appendChild(g);
+  }
+
+  function drawTargetRing(svg, hue){
+    var xy = hueToXY(hue, 1);
+    var line = svgEl("line", {
+      x1:"50", y1:"50", x2:xy[0], y2:xy[1],
+      stroke:"var(--good)", "stroke-width":"0.5", "stroke-dasharray":"1.5,1.5", opacity:"0.6"
+    });
+    svg.appendChild(line);
+    var ring = svgEl("circle", { cx:xy[0], cy:xy[1], r:4.8, fill:"none", stroke:"var(--good)", "stroke-width":"1.3" });
+    svg.appendChild(ring);
+  }
+
+  function drawTicks(svg){
+    [0,90,180,270].forEach(function(deg){
+      var outer = hueToXY(deg, 1.13);
+      var t = svgEl("text", { x:outer[0], y:outer[1]+1.3, "text-anchor":"middle", "class":"tick-label" });
+      t.textContent = deg + "°";
+      svg.appendChild(t);
+    });
+  }
+
+  // ---------- quiz flow ----------
+  function renderDiffGrid(){
+    var grid = document.getElementById("diff-grid");
+    grid.innerHTML = "";
+    DIFFICULTIES.forEach(function(d){
+      var btn = document.createElement("button");
+      btn.className = "diff-btn";
+      var swHues = d.key==="mixed" ? [20,140,260] : d.key==="easy" ? [200] : d.key==="medium" ? [30,210] : [10,190];
+      var dots = swHues.map(function(h){
+        return "<span class=\"swatch\" style=\"background:" + hsbToRgb(h, d.sat[1], d.bri[1]) + "\"></span>";
+      }).join("");
+      btn.innerHTML = "<div class=\"dot-row\">" + dots + "</div><h3>" + d.label + "</h3><p>" + d.desc + "</p>";
+      btn.addEventListener("click", function(){ startQuiz(d.key); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function showScreen(id){
+    ["screen-start","screen-quiz","screen-end"].forEach(function(s){
+      document.getElementById(s).hidden = (s !== id);
+    });
+  }
+
+  function startQuiz(diffKey){
+    state.diff = diffKey;
+    state.quiz = [];
+    for(var i=0;i<TOTAL_Q;i++) state.quiz.push(genQuestion(diffKey));
+    state.idx = 0;
+    state.score = 0;
+    state.results = [];
+    showScreen("screen-quiz");
+    renderQuestion();
+  }
+
+  function updateHeader(){
+    document.getElementById("progress-fill").style.width = (state.idx/TOTAL_Q*100) + "%";
+    document.getElementById("score-pill").textContent = state.score + " / " + TOTAL_Q;
+  }
+
+  function renderQuestion(){
+    state.answered = false;
+    updateHeader();
+    var q = state.quiz[state.idx];
+    var svg = clearSvg();
+    drawTicks(svg);
+
+    document.getElementById("feedback").hidden = true;
+    document.getElementById("next-btn").hidden = true;
+    var givenInfo = document.getElementById("given-info");
+    givenInfo.innerHTML = "";
+    var optList = document.getElementById("opt-list");
+    optList.innerHTML = "";
+
+    if(q.mode === "identify"){
+      document.getElementById("q-prompt").innerHTML = q.prompt;
+      q.points.forEach(function(p){
+        drawPoint(svg, p.h, p.s/100, hsbToRgb(p.h,p.s,p.b), p.label, "given", null);
+      });
+      q.options.forEach(function(name, i){
+        var btn = document.createElement("button");
+        btn.className = "opt-btn";
+        btn.innerHTML = "<span class=\"letter\">" + String.fromCharCode(65+i) + "</span><span>" + name + "</span>";
+        btn.addEventListener("click", function(){ answerIdentify(name, q, btn); });
+        optList.appendChild(btn);
+      });
+    } else {
+      document.getElementById("q-prompt").innerHTML = q.prompt;
+      q.shown.forEach(function(s){
+        drawPoint(svg, s.h, s.s/100, hsbToRgb(s.h,s.s,s.b), s.tag, "given", null);
+      });
+      var giv = document.createElement("div");
+      q.shown.forEach(function(s){
+        var row = document.createElement("div");
+        row.className = "given-label";
+        row.innerHTML = "<span class=\"given-swatch\" style=\"background:" + hsbToRgb(s.h,s.s,s.b) + "\"></span> given " + s.tag + " — hue " + fmtDeg(s.h);
+        giv.appendChild(row);
+      });
+      givenInfo.appendChild(giv);
+
+      var hint = document.createElement("div");
+      hint.className = "place-hint";
+      hint.textContent = "Click anywhere on the wheel to place your answer — only the hue (angle) is graded, saturation doesn't matter.";
+      optList.appendChild(hint);
+
+      attachWheelClickHandler(svg, q);
+    }
+  }
+
+  function attachWheelClickHandler(svg, q){
+    var hit = svgEl("circle", { cx:"50", cy:"50", r:"50", fill:"transparent" });
+    hit.style.cursor = "crosshair";
+    hit.style.pointerEvents = "all";
+    hit.addEventListener("click", function(e){
+      if(state.answered) return;
+      var rect = svg.getBoundingClientRect();
+      var relX = (e.clientX - rect.left) / rect.width * 100;
+      var relY = (e.clientY - rect.top) / rect.height * 100;
+      var dx = relX - 50, dy = relY - 50;
+      var hue = norm(Math.atan2(dx, -dy) * 180/Math.PI);
+      var satFrac = Math.min(1, Math.sqrt(dx*dx + dy*dy) / 50);
+      answerPlace(hue, satFrac, q, svg);
+    });
+    svg.appendChild(hit);
+  }
+
+  function lockOptions(){
+    document.querySelectorAll(".opt-btn").forEach(function(b){ b.disabled = true; });
+  }
+
+  function finishAnswer(correct, explanation){
+    state.answered = true;
+    state.results.push(correct);
+    if(correct) state.score++;
+    updateHeader();
+    lockOptions();
+    var fb = document.getElementById("feedback");
+    fb.hidden = false;
+    fb.className = "feedback " + (correct ? "correct" : "wrong");
+    fb.innerHTML = "<strong>" + (correct ? "Correct. " : "Not quite. ") + "</strong>" + explanation;
+    document.getElementById("next-btn").hidden = false;
+  }
+
+  function answerIdentify(chosenName, q, btnEl){
+    if(state.answered) return;
+    var correct = chosenName === q.correctLabel;
+    document.querySelectorAll(".opt-btn").forEach(function(b){
+      var name = b.querySelector("span:last-child").textContent;
+      if(name === q.correctLabel) b.classList.add("correct");
+      else if(b === btnEl) b.classList.add("wrong");
+    });
+    finishAnswer(correct, q.explanation);
+  }
+
+  function answerPlace(hue, satFrac, q, svg){
+    if(state.answered) return;
+    var correct = q.targets.some(function(t){ return angDiff(hue,t) <= q.tol; });
+    var nearest = q.targets.reduce(function(a,b){ return angDiff(hue,a) <= angDiff(hue,b) ? a : b; });
+    var delta = angDiff(hue, nearest);
+    var color = hsbToRgb(hue, Math.max(satFrac*100, 20), 88);
+
+    drawPoint(svg, hue, Math.max(satFrac, 0.14), color, "You", correct ? "correct" : "wrong", null);
+    q.targets.forEach(function(t){ drawTargetRing(svg, t); });
+
+    var explanation = "You placed " + fmtDeg(hue) + ". " + q.targetsLabel + " " +
+      (correct ? "That's close enough — nice catch." : "You were " + fmtDeg(delta) + " off the nearest valid target.");
+    finishAnswer(correct, explanation);
+  }
+
+  document.getElementById("next-btn").addEventListener("click", function(){
+    state.idx++;
+    if(state.idx >= TOTAL_Q) endQuiz();
+    else renderQuestion();
+  });
+
+  function endQuiz(){
+    showScreen("screen-end");
+    document.getElementById("end-score-num").textContent = state.score;
+    var pct = Math.round(state.score/TOTAL_Q*100);
+    var msg;
+    if(pct === 100) msg = "Perfect round — every relationship spotted correctly.";
+    else if(pct >= 80) msg = "Strong grasp of the colour wheel — just a couple to review.";
+    else if(pct >= 50) msg = "Halfway there — try again and watch the angles closely.";
+    else msg = "Worth another round — focus on the angle between hues, not just the colours themselves.";
+    document.getElementById("end-msg").textContent = msg;
+
+    var bd = document.getElementById("breakdown");
+    bd.innerHTML = "";
+    var correctCount = state.results.filter(Boolean).length;
+    [
+      ["Level", DIFFICULTIES.filter(function(d){return d.key===state.diff;})[0].label],
+      ["Correct", correctCount + " of " + TOTAL_Q],
+      ["Accuracy", pct + "%"]
+    ].forEach(function(pair){
+      var row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = "<div>" + pair[0] + "</div><div class=\"n\">" + pair[1] + "</div>";
+      bd.appendChild(row);
+    });
+  }
+
+  document.getElementById("replay-btn").addEventListener("click", function(){ startQuiz(state.diff); });
+  document.getElementById("change-level-btn").addEventListener("click", function(){ showScreen("screen-start"); });
+  document.getElementById("quit-btn").addEventListener("click", function(){ showScreen("screen-start"); });
+
+  renderDiffGrid();
+})();
+</script>
