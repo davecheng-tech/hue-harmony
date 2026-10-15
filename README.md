@@ -82,4 +82,9 @@ Or drag the repo folder straight into Netlify's manual deploy dropzone if you'd 
 
 ## Editing
 
-See `NOTES.md` for how the question generator works, the reasoning behind the difficulty tuning, where the wheel mapping came from, and the naming rule that keeps wheel angles and HSL `H` values apart.
+See `NOTES.md` before changing anything non-obvious. It covers how the question generator works and why the difficulty is tuned the way it is, where the wheel mapping came from, the naming rule that keeps wheel angles and HSL `H` values apart, how screens and routing fit together, and how the image export is drawn.
+
+Two things that have caught edits before, both documented there in full:
+
+- Markup for a screen must stay nested inside that screen's `<section>` — visibility is `hidden` on the section, so anything that drifts out shows up on every route.
+- The exported image re-implements the picker's layout on a canvas, so restyling the picker does not change the export.

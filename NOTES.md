@@ -22,6 +22,14 @@ Angle convention: **0° (red) is at the top, increasing clockwise** — matches 
 
 Everything else (given colours, option dots, target rings) is plotted in an SVG overlay (`viewBox="0 0 100 100"`, wheel angle mapped to angle, saturation mapped to radius as a 0–1 fraction).
 
+## Screens and routing
+
+Each screen is a `<section class="card">` toggled by `showScreen()`, which sets `hidden` on every section but one. `applyRoute()` reads `location.hash` and is the single entry point — buttons call `go(route)` and let the resulting `hashchange` do the work, so there is one code path to the screen rather than two.
+
+**Everything a screen owns must live inside that screen's `<section>`.** Visibility is `hidden` on the section, so markup that drifts outside it stays on screen on *every* route. This has already happened once: a leftover `</div>` closed `picker-body` early, which made the next `</div>` close the section, and the picker's sliders rendered across the main menu at full window width. Tag balance alone won't catch it — the tags balanced fine. After any markup surgery, confirm the controls are still nested inside their own section.
+
+Routes are listed in `README.md`. Adding one means a branch in `applyRoute()` plus a `go()` call on whatever triggers it; unknown routes fall through to the main menu.
+
 ## Difficulty tuning (`DIFFICULTIES`)
 
 - `tol` is the angular slop (in degrees) allowed before a relationship stops counting — this is the "good enough" rule the unit teaches (e.g. complementary at 170° instead of 180° still counts). Easy uses `tol:0` (exact angles only, no ambiguity for beginners).
@@ -58,6 +66,8 @@ If you add a 7th relationship type, you need to touch all of:
 - No persistence — closing the tab loses your streak. Deliberate; this is meant to be a disposable drill, not a tracked gradebook.
 - No keyboard-accessible way to answer Hard-mode questions (the wheel is a plain click target, no arrow-key placement). Fine for a classroom laptop/tablet context; would need work for a fully accessible deploy.
 - Explanations are template strings, not proper i18n. Fine for a single-language classroom tool; would need restructuring for translation.
+- The picker's wheel is pointer-only (click/drag), like the quiz wheel. The H/S/L sliders and number inputs are fully keyboard-operable and reach every colour, so the wheel is a shortcut rather than the only way in.
+- The exported image re-implements the picker's layout on a canvas instead of deriving it from the DOM. Restyle the picker and the export will not follow — see **Image export**.
 
 
 ## Naming: "wheel angle" vs "H"
