@@ -367,7 +367,18 @@
     flex-shrink:0;
   }
   .copy-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .head-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  /* label + buttons read as one toolbar rather than a floating caption */
+  .head-actions{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 5px 5px 12px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    flex-wrap:wrap;
+  }
   .head-label{
     font-size:10.5px;
     font-weight:700;
@@ -375,7 +386,9 @@
     text-transform:uppercase;
     color:var(--text-dim);
     white-space:nowrap;
+    margin-right:2px;
   }
+  .head-actions .copy-btn{background:var(--panel);}
   .link-btn{padding:6px 11px;font-size:12px;}
   .copy-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
