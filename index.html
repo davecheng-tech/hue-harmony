@@ -721,7 +721,10 @@
     for(var d=0; d<=360; d+=4){
       stops.push("hsl(" + wheelToHue(d).toFixed(1) + ",100%,50%) " + d + "deg");
     }
-    return "radial-gradient(circle at 50% 50%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%), " +
+    // closest-side, not the default farthest-corner: on a square box the corner sits
+    // at 0.707*width while the disc edge is at 0.5*width, so the default ramp is only
+    // ~71% done at the rim and leaves ~29% white over the whole wheel.
+    return "radial-gradient(circle closest-side at 50% 50%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%), " +
            "conic-gradient(from 0deg, " + stops.join(",") + ")";
   }
   document.getElementById("wheel-disc").style.background = buildWheelGradient();

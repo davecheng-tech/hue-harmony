@@ -6,7 +6,9 @@ Internal design notes on `index.html` — the "why" behind values that aren't ob
 
 ## Wheel geometry
 
-The wheel is drawn with two stacked CSS gradients on `.wheel-disc` (see `buildWheelGradient`): a `conic-gradient` for hue, with a white `radial-gradient` on top that fades out toward the edge. Since HSB saturation at brightness=100 is exactly a linear mix toward white, this reproduces a true HSB wheel without a canvas or per-pixel math. The hues fed into that gradient are warped — see the next section.
+The wheel is drawn with two stacked CSS gradients on `.wheel-disc` (see `buildWheelGradient`): a `conic-gradient` for hue, with a white `radial-gradient` on top that fades out toward the edge.
+
+That radial gradient **must** say `circle closest-side`. The CSS default is `farthest-corner`, and on a square box the corner is at 0.707×width while the disc edge is at 0.5×width — so the default ramp is only ~71% finished at the rim and leaves roughly 29% white lying over the entire wheel, washing it out. With `closest-side` the ramp ends exactly at the disc edge and saturation equals radius, which is both the correct HSB geometry and what Adobe's wheel measures as. Since HSB saturation at brightness=100 is exactly a linear mix toward white, this reproduces a true HSB wheel without a canvas or per-pixel math. The hues fed into that gradient are warped — see the next section.
 
 ## The wheel is RYB, not raw HSL
 
