@@ -120,6 +120,8 @@ Each sample averages a 5×5 patch. A single pixel is a bad sample off a photo: J
 
 Pointer handling: a pin's `pointerdown` sets `dragIdx` and stops propagation, and the stage's handler returns early when `dragIdx >= 0`. Without that, grabbing a pin would also drop a new pin underneath it.
 
+Both tools cap at six colours. They are matched deliberately: a sampled palette should be able to move into the mapper whole, and a cap that differed between them would mean a silent truncation somewhere.
+
 There is no colour editing and no URL route for a palette — an image can't go in a URL, and the tool's job is taking colours off a photo rather than adjusting them. Samples reach the other tools by copying a hex.
 
 ## Shared plotting

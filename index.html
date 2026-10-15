@@ -2284,7 +2284,7 @@
 
   // ---------- image palette sampler ----------
   var sampler = (function(){
-    var MAX = 8;
+    var MAX = 6;               // matches the mapper, so a sampled palette transfers whole
     var SRC_MAX = 1600;        // cap the sampling canvas; big photos don't need full res
     var pins = [], sel = 0, started = false;
     var img = null, srcCtx = null, srcW = 0, srcH = 0, dragIdx = -1;

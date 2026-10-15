@@ -47,7 +47,7 @@ Colour relationships are deliberately *not* computed or named here — the tool 
 
 ### Image palette
 
-Upload a photo and drop eyedroppers on it to sample real colours. Up to **eight** samples, each a numbered pin on the image with a matching numbered dot on the wheel and swatch in the strip.
+Upload a photo and drop eyedroppers on it to sample real colours. Up to **six** samples, each a numbered pin on the image with a matching numbered dot on the wheel and swatch in the strip.
 
 - Click the image to drop a pin; drag a pin to move it and it re-samples live.
 - Each sample averages a small 5×5 patch rather than one pixel, so a bit of photo grain or JPEG noise doesn't decide the colour.
