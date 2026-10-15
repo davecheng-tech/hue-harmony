@@ -31,6 +31,8 @@ Sliders and numeric inputs for hue, saturation and lightness, with live `hsl()` 
 - The wheel's shading tracks the current lightness.
 - Clicking or dragging on the wheel sets hue and saturation.
 
+**Copy link** puts a URL for the current colour on the clipboard. **Download image** saves a JPG of the whole picker — wheel, swatch, `hsl()`/`rgb()`/hex values and sliders — named after the colour (`hue-harmony-ffe600.jpg`), with the colour's link along the bottom so the image points back at the live tool. The image is drawn on a canvas rather than screenshotting the page, so it's always the light theme at a fixed 1800×1652, identical from any machine.
+
 ## The wheel
 
 The wheel is aligned to the **Adobe Express colour wheel**, not a raw HSL circle. That means it's the artist's (RYB-style) wheel: red sits opposite green, and cyan opposite orange. Red is at 0°/360° at the top, running clockwise through orange (~30°), yellow (~120°), green (180°), cyan (~216°), blue (~270°) and magenta (~330°).

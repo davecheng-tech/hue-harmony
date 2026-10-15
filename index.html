@@ -367,7 +367,8 @@
     flex-shrink:0;
   }
   .copy-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .link-btn{margin-left:auto;padding:6px 11px;font-size:12px;}
+  .head-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+  .link-btn{padding:6px 11px;font-size:12px;}
   .copy-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
   .slider-rows{display:flex;flex-direction:column;gap:14px;margin-top:22px;}
@@ -516,7 +517,10 @@
     <div class="screen-head">
       <button class="quit-btn" data-goto="tools">&larr; Tools</button>
       <h2>HSL colour picker</h2>
-      <button class="copy-btn link-btn" id="copy-link-btn" title="Copy a URL that reopens the picker on this exact colour">Copy link to this colour</button>
+      <div class="head-actions">
+        <button class="copy-btn link-btn" id="copy-link-btn" title="Copy a URL that reopens the picker on this exact colour">Copy link</button>
+        <button class="copy-btn link-btn" id="download-img-btn" title="Save this colour as a JPG, including the wheel, swatch, values and sliders">Download image</button>
+      </div>
     </div>
 
     <div class="picker-body">
@@ -1398,6 +1402,205 @@
       });
     }
 
+    // ---------- image export ----------
+    // Drawn procedurally on a canvas rather than screenshotting the DOM: no
+    // dependency, and the output is always the light theme at a fixed size, so
+    // the same colour exports identically from any machine or theme.
+    var EX = { w:900, h:826, pad:48 };
+
+    function roundRect(ctx, x, y, w, h, r){
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);
+      ctx.arcTo(x+w, y,   x+w, y+h, r);
+      ctx.arcTo(x+w, y+h, x,   y+h, r);
+      ctx.arcTo(x,   y+h, x,   y,   r);
+      ctx.arcTo(x,   y,   x+w, y,   r);
+      ctx.closePath();
+    }
+
+    function drawExportWheel(ctx, cx, cy, R){
+      // hue ring as fine wedges (no createConicGradient dependency)
+      for(var a=0; a<720; a++){
+        var d0 = a/2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, R, (d0-90)*Math.PI/180, (d0-90+0.75)*Math.PI/180);
+        ctx.closePath();
+        ctx.fillStyle = "hsl(" + wheelToHue(d0).toFixed(1) + ",100%,50%)";
+        ctx.fill();
+      }
+      // saturation falls off to white at the centre; ends exactly at the rim
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+      g.addColorStop(0, "rgba(255,255,255,1)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+      ctx.fillStyle = g; ctx.fill();
+
+      // lightness veil, matching the on-screen wheel
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+      ctx.fillStyle = hsl.l >= 50
+        ? "rgba(255,255,255," + ((hsl.l-50)/50).toFixed(3) + ")"
+        : "rgba(0,0,0," + ((50-hsl.l)/50).toFixed(3) + ")";
+      ctx.fill();
+
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+      ctx.strokeStyle = "rgba(0,0,0,.12)"; ctx.lineWidth = 1; ctx.stroke();
+
+      // degree ticks + labels (a protractor scale on the drawing)
+      ctx.font = "600 12px 'IBM Plex Mono', monospace";
+      ctx.fillStyle = "#8b8b93";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      for(var d=0; d<360; d+=30){
+        var rad = d*Math.PI/180, sn = Math.sin(rad), cs = Math.cos(rad);
+        ctx.beginPath();
+        ctx.moveTo(cx + R*sn,      cy - R*cs);
+        ctx.lineTo(cx + R*0.93*sn, cy - R*0.93*cs);
+        ctx.strokeStyle = d % 90 === 0 ? "rgba(0,0,0,.45)" : "rgba(0,0,0,.25)";
+        ctx.lineWidth = d % 90 === 0 ? 2 : 1.2;
+        ctx.stroke();
+        ctx.fillText(d + "°", cx + R*1.13*sn, cy - R*1.13*cs);
+      }
+
+      // full-radius pointer + marker at the saturation distance
+      var wa = hueToWheel(hsl.h)*Math.PI/180;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + R*Math.sin(wa), cy - R*Math.cos(wa));
+      ctx.strokeStyle = "#18181b"; ctx.lineWidth = 2.4; ctx.lineCap = "round";
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI*2);
+      ctx.fillStyle = "#18181b"; ctx.fill();
+
+      var mf = hsl.s/100;
+      ctx.beginPath();
+      ctx.arc(cx + R*mf*Math.sin(wa), cy - R*mf*Math.cos(wa), 13, 0, Math.PI*2);
+      ctx.fillStyle = cssHsl(); ctx.fill();
+      ctx.strokeStyle = "#18181b"; ctx.lineWidth = 3; ctx.stroke();
+    }
+
+    function drawExportSlider(ctx, y, label, value, unit, grad){
+      var pad = EX.pad, barX = pad + 118, barW = EX.w - pad - barX, barH = 22;
+
+      ctx.textBaseline = "middle"; ctx.textAlign = "left";
+      ctx.font = "700 16px 'IBM Plex Mono', monospace";
+      ctx.fillStyle = "#18181b";
+      ctx.fillText(label, pad, y + barH/2);
+
+      ctx.font = "600 15px 'IBM Plex Mono', monospace";
+      ctx.fillText(value + unit, pad + 30, y + barH/2);
+
+      var g = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+      grad.forEach(function(stop){ g.addColorStop(stop[0], stop[1]); });
+      roundRect(ctx, barX, y, barW, barH, 6);
+      ctx.fillStyle = g; ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,.14)"; ctx.lineWidth = 1; ctx.stroke();
+
+      var t = value / (label === "H" ? 360 : 100);
+      var tx = barX + barW*t;
+      roundRect(ctx, tx - 7, y - 5, 14, barH + 10, 5);
+      ctx.fillStyle = "#ffffff"; ctx.fill();
+      ctx.strokeStyle = "#18181b"; ctx.lineWidth = 2.5; ctx.stroke();
+    }
+
+    function renderExport(){
+      var scale = 2;
+      var c = document.createElement("canvas");
+      c.width = EX.w*scale; c.height = EX.h*scale;
+      var ctx = c.getContext("2d");
+      ctx.scale(scale, scale);
+
+      var pad = EX.pad;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, EX.w, EX.h);
+
+      // header
+      ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+      ctx.font = "700 26px 'Space Grotesk', system-ui, sans-serif";
+      ctx.fillStyle = "#18181b";
+      ctx.fillText("Hue Harmony", pad, pad + 20);
+      var titleW = ctx.measureText ? ctx.measureText("Hue Harmony").width : 150;
+      ctx.font = "500 15px Inter, system-ui, sans-serif";
+      ctx.fillStyle = "#6b6b74";
+      ctx.fillText("HSL colour picker", pad + titleW + 14, pad + 20);
+
+      ctx.textAlign = "right";
+      ctx.font = "600 22px 'IBM Plex Mono', monospace";
+      ctx.fillStyle = "#18181b";
+      ctx.fillText(hex(), EX.w - pad, pad + 20);
+      ctx.textAlign = "left";
+
+      // wheel
+      var R = 165, cx = pad + 190, cy = 130 + R;
+      drawExportWheel(ctx, cx, cy, R);
+
+      // swatch + code rows
+      var colX = pad + 420, colW = EX.w - pad - colX;
+      roundRect(ctx, colX, 130, colW, 190, 14);
+      ctx.fillStyle = cssHsl(); ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,.14)"; ctx.lineWidth = 1; ctx.stroke();
+
+      [["HSL", cssHsl()], ["RGB", cssRgb()], ["HEX", hex()]].forEach(function(row, i){
+        var ry = 344 + i*58;
+        roundRect(ctx, colX, ry, colW, 46, 10);
+        ctx.fillStyle = "#efece6"; ctx.fill();
+        ctx.textBaseline = "middle";
+        ctx.font = "700 11px Inter, system-ui, sans-serif";
+        ctx.fillStyle = "#6b6b74";
+        ctx.fillText(row[0], colX + 14, ry + 23);
+        ctx.font = "600 15px 'IBM Plex Mono', monospace";
+        ctx.fillStyle = "#18181b";
+        ctx.fillText(row[1], colX + 56, ry + 23);
+      });
+
+      // sliders
+      var h = Math.round(hsl.h), s = Math.round(hsl.s), l = Math.round(hsl.l);
+      var hueStops = [];
+      for(var d=0; d<=360; d+=15) hueStops.push([d/360, "hsl(" + d + "," + s + "%," + l + "%)"]);
+      drawExportSlider(ctx, 566, "H", h, "",  hueStops);
+      drawExportSlider(ctx, 632, "S", s, "%", [[0,"hsl("+h+",0%,"+l+"%)"], [1,"hsl("+h+",100%,"+l+"%)"]]);
+      drawExportSlider(ctx, 698, "L", l, "%", [[0,"hsl("+h+","+s+"%,0%)"], [0.5,"hsl("+h+","+s+"%,50%)"], [1,"hsl("+h+","+s+"%,100%)"]]);
+
+      // footer
+      ctx.textBaseline = "alphabetic";
+      ctx.strokeStyle = "rgba(0,0,0,.12)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad, 762); ctx.lineTo(EX.w - pad, 762); ctx.stroke();
+      ctx.font = "500 13px 'IBM Plex Mono', monospace";
+      ctx.fillStyle = "#6b6b74";
+      var short = "#picker/" + hex().slice(1);
+      var link = location.protocol === "file:" ? short : shareUrl();
+      // a long deployed URL would run off the edge; fall back to the bare route
+      if(ctx.measureText && ctx.measureText(link).width > EX.w - pad*2) link = short;
+      ctx.fillText(link, pad, 788);
+
+      return c;
+    }
+
+    function downloadImage(btn){
+      var c = renderExport();
+      var done = function(){
+        var old = "Download image";
+        btn.textContent = "Saved";
+        setTimeout(function(){ btn.textContent = old; }, 1300);
+      };
+      var name = "hue-harmony-" + hex().slice(1) + ".jpg";
+      if(c.toBlob){
+        c.toBlob(function(blob){
+          if(!blob) return;
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url; a.download = name;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+          done();
+        }, "image/jpeg", 0.92);
+      } else {
+        var a2 = document.createElement("a");
+        a2.href = c.toDataURL("image/jpeg", 0.92); a2.download = name;
+        document.body.appendChild(a2); a2.click(); a2.remove();
+        done();
+      }
+    }
+
     // Keep the address bar on the current colour without pushing history entries.
     // replaceState can throw on a file:// page, so a failure here is non-fatal --
     // the Copy-link button builds its URL independently.
@@ -1423,7 +1626,7 @@
       render(null);
     }
 
-    return { start:start, shareUrl:shareUrl };
+    return { start:start, shareUrl:shareUrl, downloadImage:downloadImage };
   })();
 
   // ---------- routing ----------
@@ -1467,12 +1670,16 @@
   document.getElementById("home-tools-btn").addEventListener("click", function(){ go("tools"); });
   document.getElementById("tool-picker-btn").addEventListener("click", function(){ go("picker"); });
 
+  document.getElementById("download-img-btn").addEventListener("click", function(){
+    picker.downloadImage(this);
+  });
+
   document.getElementById("copy-link-btn").addEventListener("click", function(){
     var btn = this, url = picker.shareUrl();
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(url).then(function(){
-        btn.textContent = "Link copied";
-        setTimeout(function(){ btn.textContent = "Copy link to this colour"; }, 1300);
+        btn.textContent = "Copied";
+        setTimeout(function(){ btn.textContent = "Copy link"; }, 1300);
       }, function(){});
     }
   });

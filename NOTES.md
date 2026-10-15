@@ -68,3 +68,14 @@ These are two different numbers for the same colour, and the rule is stronger th
 - **The quiz states only wheel angles** — it never renders an `H` value, so degrees carry no ambiguity there and "complements are 180° apart" holds exactly.
 
 Never write `°` after an `H` value, and avoid the phrase "hue angle" entirely — it reads as a physical angle on the wheel, which is what caused the confusion originally. Say "wheel angle" or "H".
+
+
+## Image export
+
+`renderExport()` draws the picker onto an offscreen canvas at 2x and `downloadImage()` hands it over as a JPG. It is **not** a screenshot of the DOM — nothing is rasterised from the page, so there's no html2canvas-style dependency and no tainted-canvas risk, and the output is deterministic: always the light palette at a fixed size, whatever theme or screen the user is on.
+
+The trade-off is that the export duplicates the layout rather than deriving it, so a visual change to the picker does not reach the image. If you restyle the picker, update `renderExport()` to match or the two will drift apart.
+
+The hue ring is drawn as 720 half-degree wedges with a 0.75° sweep each, the slight overlap hiding seams between them; `createConicGradient` would be tidier but is less widely supported. Wedge hues go through `wheelToHue()`, so the exported wheel is the same RYB wheel as the screen.
+
+Text that could overflow is measured first: the header subtitle is placed at the measured width of the wordmark, and a footer URL wider than the content box falls back to the bare `#picker/<hex>` route.
