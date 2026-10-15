@@ -367,7 +367,15 @@
     flex-shrink:0;
   }
   .copy-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .head-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+  .head-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .head-label{
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    white-space:nowrap;
+  }
   .link-btn{padding:6px 11px;font-size:12px;}
   .copy-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
@@ -518,6 +526,7 @@
       <button class="quit-btn" data-goto="tools">&larr; Tools</button>
       <h2>HSL colour picker</h2>
       <div class="head-actions">
+        <span class="head-label">This colour</span>
         <button class="copy-btn link-btn" id="copy-link-btn" title="Copy a URL that reopens the picker on this exact colour">Copy link</button>
         <button class="copy-btn link-btn" id="download-img-btn" title="Save this colour as a JPG, including the wheel, swatch, values and sliders">Download image</button>
       </div>
@@ -1585,7 +1594,7 @@
         btn.textContent = "Saved";
         setTimeout(function(){ btn.textContent = old; }, 1300);
       };
-      var name = "hue-harmony-" + hex().slice(1) + ".jpg";
+      var name = "colour-" + hex().slice(1) + ".jpg";
       if(c.toBlob){
         c.toBlob(function(blob){
           if(!blob) return;

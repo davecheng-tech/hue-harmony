@@ -31,7 +31,7 @@ Sliders and numeric inputs for hue, saturation and lightness, with live `hsl()` 
 - The wheel's shading tracks the current lightness.
 - Clicking or dragging on the wheel sets hue and saturation.
 
-**Copy link** puts a URL for the current colour on the clipboard. **Download image** saves a JPG of the whole picker — wheel, swatch, `hsl()`/`rgb()`/hex values and sliders — named after the colour (`hue-harmony-ffe600.jpg`), with the colour's link along the bottom so the image points back at the live tool. The image is drawn on a canvas rather than screenshotting the page, so it's always the light theme at a fixed 1800×1652, identical from any machine.
+The picker header groups both actions under a **This colour** label: **Copy link** puts a URL for the current colour on the clipboard, and **Download image** saves a JPG of the whole picker — wheel, swatch, `hsl()`/`rgb()`/hex values and sliders — named after the colour (`colour-ffe600.jpg`), with the colour's link along the bottom so the image points back at the live tool. The image is drawn on a canvas rather than screenshotting the page, so it's always the light theme at a fixed 1800×1652, identical from any machine.
 
 ## The wheel
 
