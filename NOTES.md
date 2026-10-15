@@ -108,3 +108,20 @@ Colour relationships are intentionally absent. The tool plots and nothing more; 
 `hslToRgbArr` / `rgbToHslObj` / `hexOf` / `cssHslOf` / `cssRgbOf` / `parseHex` / `trackStyles` / `chipOn` / `copyText` sit above both tools. The picker originally owned private copies of the conversions; when the mapper needed them they were lifted out rather than duplicated. New tools should use these rather than re-deriving the maths.
 
 One trap this fixed: `wireCopy` used to bind every `.copy-btn`, including the header's Copy link and Download image buttons, which carry the class but name no `data-copy` target — so each click threw on `getElementById(null).textContent`. Copy buttons are now bound by `[data-copy]` and scoped to their own screen.
+
+
+## Image palette sampler
+
+The image is read with `FileReader` into a data URL, shown in an `<img>`, and drawn once into an offscreen canvas capped at 1600px on the long edge — that canvas is what `getImageData` reads, so sampling cost doesn't scale with the photo's real size. A data URL does not taint the canvas, so `getImageData` and the JPG export both work; loading an image from a remote URL instead *would* taint it and break the export.
+
+Pin positions are stored as **fractions** of the image (0–1), not pixels, so they stay put when the stage resizes and map cleanly onto both the source canvas and the exported thumbnail.
+
+Each sample averages a 5×5 patch. A single pixel is a bad sample off a photo: JPEG ringing and sensor noise mean a student aiming at a red jumper can land on a stray dark pixel and get a colour that isn't in the image as anyone perceives it.
+
+Pointer handling: a pin's `pointerdown` sets `dragIdx` and stops propagation, and the stage's handler returns early when `dragIdx >= 0`. Without that, grabbing a pin would also drop a new pin underneath it.
+
+There is no colour editing and no URL route for a palette — an image can't go in a URL, and the tool's job is taking colours off a photo rather than adjusting them. Samples reach the other tools by copying a hex.
+
+## Shared plotting
+
+`drawPlotWheel()` and `drawSwatchStrip()` draw the numbered dots, radius lines and swatch strip for any `[{h,s,l}]` list; `drawExportPlotWheel()`, `drawExportDisc()`, `drawExportTicks()` and `roundRectPath()` are their canvas-export counterparts. The mapper and sampler both render through these, so a change to how a plotted colour looks lands in both at once. The picker keeps its own export routine because it draws one colour with a full-radius pointer and a lightness veil, which is a different picture.

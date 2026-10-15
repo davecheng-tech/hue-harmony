@@ -568,6 +568,68 @@
   .map-codes{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
   .map-codes .code-row{flex:1;min-width:210px;}
 
+  /* ---- image palette sampler ---- */
+  .samp-body{
+    display:grid;
+    grid-template-columns:1fr minmax(200px,260px);
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width:700px){
+    .samp-body{grid-template-columns:1fr;}
+  }
+  .samp-main{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  .samp-empty{
+    border:2px dashed var(--border);
+    border-radius:14px;
+    padding:40px 20px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    background:var(--panel-2);
+  }
+  .samp-empty.over{border-color:var(--accent);background:var(--panel);}
+  .samp-empty p{margin:0;color:var(--text-dim);font-size:14px;}
+  .samp-empty .samp-formats{font-size:12px;}
+  .samp-stage{
+    position:relative;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid var(--border);
+    cursor:crosshair;
+    touch-action:none;
+    line-height:0;
+  }
+  .samp-stage img{width:100%;height:auto;display:block;}
+  .pin-layer{position:absolute;inset:0;}
+  .pin{
+    position:absolute;
+    width:26px;height:26px;
+    margin:-13px 0 0 -13px;
+    border-radius:50%;
+    border:2.5px solid #fff;
+    box-shadow:0 0 0 1px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.4);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;font-weight:700;
+    cursor:grab;
+    touch-action:none;
+    line-height:1;
+  }
+  .pin.sel{
+    width:32px;height:32px;margin:-16px 0 0 -16px;
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px rgba(0,0,0,.45), 0 3px 10px rgba(0,0,0,.45);
+  }
+  .pin:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+  .samp-wheel{margin:0 auto;max-width:260px;}
+  .samp-wheel .wheel-disc{inset:12%;}
+  .samp-strip{margin-top:18px;height:120px;}
+  .samp-strip:empty{display:none;}
+  .samp-actions{margin-top:12px;}
+
   [hidden]{display:none!important;}
 </style>
 
@@ -626,6 +688,15 @@
         </div>
         <h3>Colour mapper</h3>
         <p>Plot up to six colours on the wheel at once and see how they sit against each other.</p>
+      </button>
+      <button class="diff-btn" id="tool-samp-btn">
+        <div class="dot-row">
+          <span class="swatch" style="background:hsl(18,62%,52%)"></span>
+          <span class="swatch" style="background:hsl(96,28%,46%)"></span>
+          <span class="swatch" style="background:hsl(210,45%,64%)"></span>
+        </div>
+        <h3>Image palette</h3>
+        <p>Upload a photo, drop eyedroppers on it, and see the sampled colours land on the wheel.</p>
       </button>
     </div>
   </section>
@@ -760,6 +831,66 @@
           <span class="code-k">HEX</span><code id="map-code-hex"></code>
           <button class="copy-btn" data-copy="map-code-hex">Copy</button>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMAGE PALETTE SAMPLER -->
+  <section id="screen-samp" class="card" hidden>
+    <div class="screen-head">
+      <button class="quit-btn" data-goto="tools">&larr; Tools</button>
+      <h2>Image palette</h2>
+      <div class="head-actions">
+        <span class="head-label">Palette</span>
+        <button class="copy-btn link-btn" id="samp-replace" title="Choose a different image">Change image</button>
+        <button class="copy-btn link-btn" id="samp-download" title="Save the palette and wheel as a JPG">Download palette</button>
+      </div>
+    </div>
+
+    <input type="file" id="samp-file" accept="image/png,image/jpeg" hidden>
+
+    <div class="samp-body">
+      <div class="samp-main">
+        <div class="samp-empty" id="samp-empty">
+          <p>Drop a photo here, or</p>
+          <button class="btn-accent" id="samp-choose">Choose an image</button>
+          <p class="samp-formats">JPG or PNG &middot; stays on your device, nothing is uploaded</p>
+        </div>
+        <div class="samp-stage" id="samp-stage" hidden>
+          <img id="samp-img" alt="Image being sampled">
+          <div class="pin-layer" id="samp-pins"></div>
+        </div>
+        <p class="map-hint" id="samp-hint"></p>
+      </div>
+
+      <div class="samp-side">
+        <div class="wheel-box samp-wheel">
+          <div class="wheel-disc" id="samp-disc"></div>
+          <svg class="wheel-svg pick-svg" id="samp-svg" viewBox="0 0 100 100"></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="swatch-strip samp-strip" id="samp-strip"></div>
+
+    <div class="map-actions samp-actions">
+      <button class="btn-sm" id="samp-remove">Remove selected</button>
+      <button class="btn-sm" id="samp-clear">Clear all</button>
+      <span class="map-count" id="samp-count"></span>
+    </div>
+
+    <div class="map-codes" id="samp-codes" hidden>
+      <div class="code-row">
+        <span class="code-k">HSL</span><code id="samp-code-hsl"></code>
+        <button class="copy-btn" data-copy="samp-code-hsl">Copy</button>
+      </div>
+      <div class="code-row">
+        <span class="code-k">RGB</span><code id="samp-code-rgb"></code>
+        <button class="copy-btn" data-copy="samp-code-rgb">Copy</button>
+      </div>
+      <div class="code-row">
+        <span class="code-k">HEX</span><code id="samp-code-hex"></code>
+        <button class="copy-btn" data-copy="samp-code-hex">Copy</button>
       </div>
     </div>
   </section>
@@ -1227,7 +1358,7 @@
   }
 
   function showScreen(id){
-    ["screen-home","screen-start","screen-tools","screen-picker","screen-map","screen-quiz","screen-end"].forEach(function(s){
+    ["screen-home","screen-start","screen-tools","screen-picker","screen-map","screen-samp","screen-quiz","screen-end"].forEach(function(s){
       document.getElementById(s).hidden = (s !== id);
     });
   }
@@ -1461,6 +1592,172 @@
     }, function(){});
   }
 
+  // ---------- shared wheel plotting ----------
+  // Used by any tool that plots a set of colours on the wheel (mapper, sampler).
+  // Disc radius in viewBox units; the disc is inset so degree labels fit the box.
+  var PLOT_R = 38;
+
+  function plotXY(h, frac){
+    var rad = hueToWheel(h) * Math.PI/180;
+    return [50 + PLOT_R*frac*Math.sin(rad), 50 - PLOT_R*frac*Math.cos(rad)];
+  }
+  function plotAngleXY(wa, frac){
+    var rad = wa * Math.PI/180;
+    return [50 + PLOT_R*frac*Math.sin(rad), 50 - PLOT_R*frac*Math.cos(rad)];
+  }
+
+  function drawPlotTicks(svg){
+    for(var d=0; d<360; d+=30){
+      var a = plotAngleXY(d,1), b = plotAngleXY(d,0.92);
+      svg.appendChild(svgEl("line", {
+        x1:a[0], y1:a[1], x2:b[0], y2:b[1],
+        stroke:"var(--text)", "stroke-width": d%90===0 ? "0.7" : "0.4",
+        opacity: d%90===0 ? "0.5" : "0.3"
+      }));
+      var o = plotAngleXY(d,1.16);
+      var t = svgEl("text", { x:o[0], y:o[1]+1.2, "text-anchor":"middle", "class":"tick-label" });
+      t.textContent = d + "°";
+      svg.appendChild(t);
+    }
+  }
+
+  // cols: [{h,s,l}]; sel: selected index; onSelect(i) optional
+  function drawPlotWheel(svg, cols, sel, onSelect){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    drawPlotTicks(svg);
+
+    // selected drawn last so its dot and radius sit on top
+    var order = cols.map(function(_,i){ return i; }).sort(function(a,b){ return (a===sel) - (b===sel); });
+    order.forEach(function(i){
+      var c = cols[i], p = plotXY(c.h, c.s/100), isSel = i === sel;
+      svg.appendChild(svgEl("line", {
+        x1:"50", y1:"50", x2:p[0], y2:p[1],
+        stroke:"var(--text)", "stroke-width": isSel ? "0.8" : "0.45",
+        opacity: isSel ? "0.85" : "0.4", "stroke-linecap":"round"
+      }));
+      var g = svgEl("g", { "class":"map-dot", tabindex:"0", role:"button",
+                           "aria-label":"Colour " + (i+1) });
+      g.appendChild(svgEl("circle", {
+        cx:p[0], cy:p[1], r: isSel ? "6.4" : "5.4",
+        fill: cssHslOf(c.h,c.s,c.l),
+        stroke: isSel ? "var(--accent)" : "var(--text)",
+        "stroke-width": isSel ? "1.8" : "1"
+      }));
+      var lab = svgEl("text", {
+        x:p[0], y:p[1]+1.7, "text-anchor":"middle", "class":"dot-num",
+        fill: chipOn(c.l).fg
+      });
+      lab.textContent = i+1;
+      g.appendChild(lab);
+      if(onSelect){
+        g.addEventListener("click", function(ev){ ev.stopPropagation(); onSelect(i); });
+        g.addEventListener("keydown", function(ev){
+          if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); onSelect(i); }
+        });
+      }
+      svg.appendChild(g);
+    });
+
+    svg.appendChild(svgEl("circle", { cx:"50", cy:"50", r:"1.3", fill:"var(--text)", opacity:"0.7" }));
+  }
+
+  // a numbered swatch strip shared by the mapper and sampler
+  function drawSwatchStrip(container, cols, sel, onSelect){
+    container.innerHTML = "";
+    cols.forEach(function(c,i){
+      var chip = chipOn(c.l);
+      var item = document.createElement("div");
+      item.className = "sw-item" + (i===sel ? " sel" : "");
+      item.style.background = cssHslOf(c.h,c.s,c.l);
+      item.setAttribute("role","button");
+      item.setAttribute("tabindex","0");
+      item.setAttribute("aria-label","Colour " + (i+1) + ", " + hexOf(c.h,c.s,c.l));
+      item.innerHTML =
+        '<span class="sw-num" style="background:' + chip.bg + ';color:' + chip.fg + '">' + (i+1) + '</span>' +
+        '<span class="sw-hex" style="background:' + chip.bg + ';color:' + chip.fg + '">' + hexOf(c.h,c.s,c.l) + '</span>';
+      item.addEventListener("click", function(){ onSelect(i); });
+      item.addEventListener("keydown", function(ev){
+        if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); onSelect(i); }
+      });
+      container.appendChild(item);
+    });
+  }
+
+  // ---------- shared canvas-export helpers ----------
+  function roundRectPath(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y,   x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x,   y+h, r);
+    ctx.arcTo(x,   y+h, x,   y,   r);
+    ctx.arcTo(x,   y,   x+w, y,   r);
+    ctx.closePath();
+  }
+
+  // the hue disc itself: wedges + the white falloff, ending exactly at the rim
+  function drawExportDisc(ctx, cx, cy, R){
+    for(var a=0; a<720; a++){
+      var d0 = a/2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, R, (d0-90)*Math.PI/180, (d0-90+0.75)*Math.PI/180);
+      ctx.closePath();
+      ctx.fillStyle = "hsl(" + wheelToHue(d0).toFixed(1) + ",100%,50%)";
+      ctx.fill();
+    }
+    var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+    ctx.fillStyle = g; ctx.fill();
+  }
+
+  function drawExportTicks(ctx, cx, cy, R){
+    ctx.font = "600 12px 'IBM Plex Mono', monospace";
+    ctx.fillStyle = "#8b8b93";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for(var d=0; d<360; d+=30){
+      var rad = d*Math.PI/180, sn = Math.sin(rad), cs = Math.cos(rad);
+      ctx.beginPath();
+      ctx.moveTo(cx + R*sn, cy - R*cs);
+      ctx.lineTo(cx + R*0.93*sn, cy - R*0.93*cs);
+      ctx.strokeStyle = d%90===0 ? "rgba(0,0,0,.45)" : "rgba(0,0,0,.25)";
+      ctx.lineWidth = d%90===0 ? 2 : 1.2;
+      ctx.stroke();
+      ctx.fillText(d + "°", cx + R*1.13*sn, cy - R*1.13*cs);
+    }
+    ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  }
+
+  // disc + ticks + a numbered dot per colour, each on its own radius
+  function drawExportPlotWheel(ctx, cx, cy, R, cols){
+    drawExportDisc(ctx, cx, cy, R);
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+    ctx.strokeStyle = "rgba(0,0,0,.12)"; ctx.lineWidth = 1; ctx.stroke();
+    drawExportTicks(ctx, cx, cy, R);
+
+    cols.forEach(function(c){
+      var wa = hueToWheel(c.h)*Math.PI/180, f = c.s/100;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + R*f*Math.sin(wa), cy - R*f*Math.cos(wa));
+      ctx.strokeStyle = "rgba(24,24,27,.6)"; ctx.lineWidth = 1.6; ctx.lineCap = "round";
+      ctx.stroke();
+    });
+    cols.forEach(function(c,i){
+      var wa = hueToWheel(c.h)*Math.PI/180, f = c.s/100, chip = chipOn(c.l);
+      var px = cx + R*f*Math.sin(wa), py = cy - R*f*Math.cos(wa);
+      ctx.beginPath(); ctx.arc(px, py, 13, 0, Math.PI*2);
+      ctx.fillStyle = cssHslOf(c.h,c.s,c.l); ctx.fill();
+      ctx.strokeStyle = "#18181b"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = chip.fg;
+      ctx.font = "700 13px 'IBM Plex Mono', monospace";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(i+1, px, py);
+    });
+    ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  }
+
   // ---------- HSL colour picker tool ----------
   var picker = (function(){
     var hsl = { h:0, s:100, l:50 };
@@ -1626,15 +1923,7 @@
     // the same colour exports identically from any machine or theme.
     var EX = { w:900, h:826, pad:48 };
 
-    function roundRect(ctx, x, y, w, h, r){
-      ctx.beginPath();
-      ctx.moveTo(x+r, y);
-      ctx.arcTo(x+w, y,   x+w, y+h, r);
-      ctx.arcTo(x+w, y+h, x,   y+h, r);
-      ctx.arcTo(x,   y+h, x,   y,   r);
-      ctx.arcTo(x,   y,   x+w, y,   r);
-      ctx.closePath();
-    }
+    function roundRect(ctx,x,y,w,h,r){ roundRectPath(ctx,x,y,w,h,r); }
 
     function drawExportWheel(ctx, cx, cy, R){
       // hue ring as fine wedges (no createConicGradient dependency)
@@ -1853,7 +2142,7 @@
   // ---------- colour mapper tool ----------
   var mapper = (function(){
     var MAX = 6, MIN = 1;
-    var R = 38;                 // disc radius in viewBox units, matching the picker
+    var R = PLOT_R;             // shared disc radius, used by the pointer maths
     var cols = [], sel = 0, started = false, dragging = false;
 
     function el(id){ return document.getElementById(id); }
@@ -1866,85 +2155,12 @@
       });
     }
 
-    function xy(h, frac){
-      var rad = hueToWheel(h) * Math.PI/180;
-      return [50 + R*frac*Math.sin(rad), 50 - R*frac*Math.cos(rad)];
-    }
-    function axy(wa, frac){
-      var rad = wa * Math.PI/180;
-      return [50 + R*frac*Math.sin(rad), 50 - R*frac*Math.cos(rad)];
-    }
-
     function drawWheel(){
-      var svg = el("map-svg");
-      while(svg.firstChild) svg.removeChild(svg.firstChild);
-
-      for(var d=0; d<360; d+=30){
-        var a = axy(d,1), b = axy(d,0.92);
-        svg.appendChild(svgEl("line", {
-          x1:a[0], y1:a[1], x2:b[0], y2:b[1],
-          stroke:"var(--text)", "stroke-width": d%90===0 ? "0.7" : "0.4",
-          opacity: d%90===0 ? "0.5" : "0.3"
-        }));
-        var o = axy(d,1.16);
-        var t = svgEl("text", { x:o[0], y:o[1]+1.2, "text-anchor":"middle", "class":"tick-label" });
-        t.textContent = d + "°";
-        svg.appendChild(t);
-      }
-
-      // radius to each plotted colour, selected one drawn last so it sits on top
-      var order = cols.map(function(_,i){ return i; }).sort(function(a,b){ return (a===sel) - (b===sel); });
-      order.forEach(function(i){
-        var c = cols[i], p = xy(c.h, c.s/100), isSel = i === sel;
-        svg.appendChild(svgEl("line", {
-          x1:"50", y1:"50", x2:p[0], y2:p[1],
-          stroke:"var(--text)", "stroke-width": isSel ? "0.8" : "0.45",
-          opacity: isSel ? "0.85" : "0.4", "stroke-linecap":"round"
-        }));
-        var g = svgEl("g", { "class":"map-dot", tabindex:"0", role:"button",
-                             "aria-label":"Colour " + (i+1) });
-        g.appendChild(svgEl("circle", {
-          cx:p[0], cy:p[1], r: isSel ? "6.4" : "5.4",
-          fill: cssHslOf(c.h,c.s,c.l),
-          stroke: isSel ? "var(--accent)" : "var(--text)",
-          "stroke-width": isSel ? "1.8" : "1"
-        }));
-        var lab = svgEl("text", {
-          x:p[0], y:p[1]+1.7, "text-anchor":"middle", "class":"dot-num",
-          fill: chipOn(c.l).fg
-        });
-        lab.textContent = i+1;
-        g.appendChild(lab);
-        g.addEventListener("click", function(ev){ ev.stopPropagation(); select(i); });
-        g.addEventListener("keydown", function(ev){
-          if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); select(i); }
-        });
-        svg.appendChild(g);
-      });
-
-      svg.appendChild(svgEl("circle", { cx:"50", cy:"50", r:"1.3", fill:"var(--text)", opacity:"0.7" }));
+      drawPlotWheel(el("map-svg"), cols, sel, select);
     }
 
     function drawStrip(){
-      var strip = el("map-strip");
-      strip.innerHTML = "";
-      cols.forEach(function(c,i){
-        var chip = chipOn(c.l);
-        var item = document.createElement("div");
-        item.className = "sw-item" + (i===sel ? " sel" : "");
-        item.style.background = cssHslOf(c.h,c.s,c.l);
-        item.setAttribute("role","button");
-        item.setAttribute("tabindex","0");
-        item.setAttribute("aria-label","Colour " + (i+1) + ", " + hexOf(c.h,c.s,c.l));
-        item.innerHTML =
-          '<span class="sw-num" style="background:' + chip.bg + ';color:' + chip.fg + '">' + (i+1) + '</span>' +
-          '<span class="sw-hex" style="background:' + chip.bg + ';color:' + chip.fg + '">' + hexOf(c.h,c.s,c.l) + '</span>';
-        item.addEventListener("click", function(){ select(i); });
-        item.addEventListener("keydown", function(ev){
-          if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); select(i); }
-        });
-        strip.appendChild(item);
-      });
+      drawSwatchStrip(el("map-strip"), cols, sel, select);
     }
 
     function select(i){
@@ -2066,6 +2282,313 @@
     return { start:start };
   })();
 
+  // ---------- image palette sampler ----------
+  var sampler = (function(){
+    var MAX = 8;
+    var SRC_MAX = 1600;        // cap the sampling canvas; big photos don't need full res
+    var pins = [], sel = 0, started = false;
+    var img = null, srcCtx = null, srcW = 0, srcH = 0, dragIdx = -1;
+
+    function el(id){ return document.getElementById(id); }
+    function cols(){ return pins; }
+
+    // average a small patch so a single noisy or JPEG-artefacted pixel can't
+    // decide the colour -- kids aim roughly, and photos are grainy
+    function sampleAt(fx, fy){
+      if(!srcCtx) return { h:0, s:0, l:50 };
+      var px = Math.max(0, Math.min(srcW-1, Math.round(fx*srcW)));
+      var py = Math.max(0, Math.min(srcH-1, Math.round(fy*srcH)));
+      var r = 2, x0 = Math.max(0, px-r), y0 = Math.max(0, py-r);
+      var w = Math.min(srcW-x0, r*2+1), h = Math.min(srcH-y0, r*2+1);
+      var d = srcCtx.getImageData(x0, y0, w, h).data;
+      var sr=0, sg=0, sb=0, n=0;
+      for(var i=0; i<d.length; i+=4){ sr+=d[i]; sg+=d[i+1]; sb+=d[i+2]; n++; }
+      return rgbToHslObj(sr/n, sg/n, sb/n);
+    }
+
+    function resample(i){
+      var p = pins[i], c = sampleAt(p.x, p.y);
+      p.h = c.h; p.s = c.s; p.l = c.l;
+    }
+
+    function drawPins(){
+      var layer = el("samp-pins");
+      layer.innerHTML = "";
+      pins.forEach(function(p,i){
+        var chip = chipOn(p.l);
+        var pin = document.createElement("div");
+        pin.className = "pin" + (i===sel ? " sel" : "");
+        pin.style.left = (p.x*100) + "%";
+        pin.style.top  = (p.y*100) + "%";
+        pin.style.background = cssHslOf(p.h,p.s,p.l);
+        pin.style.color = chip.fg;
+        pin.setAttribute("role","button");
+        pin.setAttribute("tabindex","0");
+        pin.setAttribute("aria-label","Sample " + (i+1) + ", " + hexOf(p.h,p.s,p.l));
+        pin.textContent = i+1;
+        pin.addEventListener("pointerdown", function(e){
+          e.preventDefault(); e.stopPropagation();
+          sel = i; dragIdx = i;
+          el("samp-stage").setPointerCapture(e.pointerId);
+          render();
+        });
+        pin.addEventListener("keydown", function(e){
+          if(e.key==="Enter"||e.key===" "){ e.preventDefault(); sel = i; render(); }
+        });
+        layer.appendChild(pin);
+      });
+    }
+
+    function render(){
+      el("samp-empty").hidden = !!img;
+      el("samp-stage").hidden = !img;
+      el("samp-count").textContent = pins.length + " of " + MAX;
+      el("samp-remove").disabled = !pins.length;
+      el("samp-clear").disabled = !pins.length;
+      el("samp-download").disabled = !pins.length;
+      el("samp-hint").textContent = !img
+        ? "Choose an image to begin."
+        : (pins.length >= MAX
+            ? "That's all " + MAX + " samples. Drag one to move it, or remove one to free a slot."
+            : "Click the image to drop an eyedropper. Drag a pin to move it.");
+
+      drawPlotWheel(el("samp-svg"), pins, sel, function(i){ sel = i; render(); });
+      drawSwatchStrip(el("samp-strip"), pins, sel, function(i){ sel = i; render(); });
+      drawPins();
+
+      var has = pins.length > 0;
+      el("samp-codes").hidden = !has;
+      if(has){
+        var c = pins[Math.min(sel, pins.length-1)];
+        el("samp-code-hsl").textContent = cssHslOf(c.h,c.s,c.l);
+        el("samp-code-rgb").textContent = cssRgbOf(c.h,c.s,c.l);
+        el("samp-code-hex").textContent = hexOf(c.h,c.s,c.l);
+      }
+    }
+
+    function loadFile(file){
+      if(!file || !/^image\/(png|jpeg|jpg|webp)$/.test(file.type)){
+        el("samp-hint").textContent = "That file isn't a PNG or JPG.";
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        var im = new Image();
+        im.onload = function(){
+          var scale = Math.min(1, SRC_MAX/Math.max(im.naturalWidth, im.naturalHeight));
+          srcW = Math.max(1, Math.round(im.naturalWidth*scale));
+          srcH = Math.max(1, Math.round(im.naturalHeight*scale));
+          var c = document.createElement("canvas");
+          c.width = srcW; c.height = srcH;
+          srcCtx = c.getContext("2d", { willReadFrequently:true });
+          srcCtx.drawImage(im, 0, 0, srcW, srcH);
+          img = im;
+          el("samp-img").src = im.src;
+          pins = []; sel = 0;
+          render();
+        };
+        im.onerror = function(){ el("samp-hint").textContent = "That image couldn't be read."; };
+        im.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addPinAt(fx, fy){
+      if(pins.length >= MAX) return;
+      var c = sampleAt(fx, fy);
+      pins.push({ x:fx, y:fy, h:c.h, s:c.s, l:c.l });
+      sel = pins.length - 1;
+      render();
+    }
+
+    function stageXY(e){
+      var r = el("samp-stage").getBoundingClientRect();
+      return [ Math.max(0, Math.min(1, (e.clientX - r.left)/r.width)),
+               Math.max(0, Math.min(1, (e.clientY - r.top)/r.height)) ];
+    }
+
+    function wire(){
+      el("samp-file").addEventListener("change", function(){
+        if(this.files && this.files[0]) loadFile(this.files[0]);
+      });
+      el("samp-choose").addEventListener("click", function(){ el("samp-file").click(); });
+      el("samp-replace").addEventListener("click", function(){ el("samp-file").click(); });
+
+      var empty = el("samp-empty");
+      ["dragenter","dragover"].forEach(function(ev){
+        empty.addEventListener(ev, function(e){ e.preventDefault(); empty.classList.add("over"); });
+      });
+      ["dragleave","drop"].forEach(function(ev){
+        empty.addEventListener(ev, function(e){ e.preventDefault(); empty.classList.remove("over"); });
+      });
+      empty.addEventListener("drop", function(e){
+        if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+      });
+
+      var stage = el("samp-stage");
+      stage.addEventListener("pointerdown", function(e){
+        if(dragIdx >= 0) return;          // a pin took this one
+        var p = stageXY(e);
+        addPinAt(p[0], p[1]);
+      });
+      stage.addEventListener("pointermove", function(e){
+        if(dragIdx < 0) return;
+        var p = stageXY(e);
+        pins[dragIdx].x = p[0]; pins[dragIdx].y = p[1];
+        resample(dragIdx);
+        render();
+      });
+      ["pointerup","pointercancel"].forEach(function(ev){
+        stage.addEventListener(ev, function(e){
+          if(dragIdx < 0) return;
+          dragIdx = -1;
+          if(stage.hasPointerCapture && stage.hasPointerCapture(e.pointerId)) stage.releasePointerCapture(e.pointerId);
+        });
+      });
+
+      el("samp-remove").addEventListener("click", function(){
+        if(!pins.length) return;
+        pins.splice(sel,1);
+        if(sel >= pins.length) sel = Math.max(0, pins.length-1);
+        render();
+      });
+      el("samp-clear").addEventListener("click", function(){ pins = []; sel = 0; render(); });
+      el("samp-download").addEventListener("click", function(){ downloadPalette(this); });
+
+      document.querySelectorAll("#screen-samp .copy-btn[data-copy]").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          copyText(el(btn.getAttribute("data-copy")).textContent, btn);
+        });
+      });
+    }
+
+    // ---------- palette export ----------
+    function renderExport(){
+      var W = 900, pad = 48, scale = 2;
+      var H = 712;
+      var c = document.createElement("canvas");
+      c.width = W*scale; c.height = H*scale;
+      var ctx = c.getContext("2d");
+      ctx.scale(scale, scale);
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,W,H);
+
+      ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+      ctx.font = "700 26px 'Space Grotesk', system-ui, sans-serif";
+      ctx.fillStyle = "#18181b";
+      ctx.fillText("Hue Harmony", pad, pad+20);
+      var tw = ctx.measureText ? ctx.measureText("Hue Harmony").width : 150;
+      ctx.font = "500 15px Inter, system-ui, sans-serif";
+      ctx.fillStyle = "#6b6b74";
+      ctx.fillText("Image palette", pad + tw + 14, pad+20);
+      ctx.textAlign = "right";
+      ctx.font = "600 15px 'IBM Plex Mono', monospace";
+      ctx.fillStyle = "#18181b";
+      ctx.fillText(pins.length + (pins.length===1 ? " colour" : " colours"), W-pad, pad+20);
+      ctx.textAlign = "left";
+
+      // wheel
+      var R = 150, cx = pad + 175, cy = 126 + R;
+      drawExportPlotWheel(ctx, cx, cy, R, pins);
+
+      // source image with its pins, aspect-fitted beside the wheel
+      var bx = pad + 400, bw = W - pad - bx, by = 126, bh = 300;
+      if(img){
+        var k = Math.min(bw/img.naturalWidth, bh/img.naturalHeight);
+        var dw = img.naturalWidth*k, dh = img.naturalHeight*k;
+        var dx = bx + (bw-dw)/2, dy = by + (bh-dh)/2;
+        ctx.save();
+        roundRectPath(ctx, dx, dy, dw, dh, 10);
+        ctx.clip();
+        ctx.drawImage(img, dx, dy, dw, dh);
+        ctx.restore();
+        roundRectPath(ctx, dx, dy, dw, dh, 10);
+        ctx.strokeStyle = "rgba(0,0,0,.18)"; ctx.lineWidth = 1; ctx.stroke();
+
+        pins.forEach(function(p,i){
+          var px = dx + p.x*dw, py = dy + p.y*dh, chip = chipOn(p.l);
+          ctx.beginPath(); ctx.arc(px, py, 13, 0, Math.PI*2);
+          ctx.fillStyle = cssHslOf(p.h,p.s,p.l); ctx.fill();
+          ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2.5; ctx.stroke();
+          ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.lineWidth = 1; ctx.stroke();
+          ctx.fillStyle = chip.fg;
+          ctx.font = "700 13px 'IBM Plex Mono', monospace";
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(i+1, px, py);
+        });
+        ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+      }
+
+      // swatch row
+      var n = pins.length, avail = W - pad*2, gap = 10;
+      var sw = n ? (avail - gap*(n-1))/n : avail;
+      var sy = 492, sh = 118;
+      pins.forEach(function(p,i){
+        var x = pad + i*(sw+gap), chip = chipOn(p.l);
+        roundRectPath(ctx, x, sy, sw, sh, 10);
+        ctx.fillStyle = cssHslOf(p.h,p.s,p.l); ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,.14)"; ctx.lineWidth = 1; ctx.stroke();
+
+        ctx.beginPath(); ctx.arc(x+16, sy+16, 10, 0, Math.PI*2);
+        ctx.fillStyle = chip.bg; ctx.fill();
+        ctx.fillStyle = chip.fg;
+        ctx.font = "700 12px 'IBM Plex Mono', monospace";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(i+1, x+16, sy+16);
+
+        ctx.fillStyle = "#18181b";
+        ctx.font = "600 13px 'IBM Plex Mono', monospace";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(hexOf(p.h,p.s,p.l), x + sw/2, sy + sh + 22);
+        ctx.textAlign = "left";
+      });
+
+      ctx.strokeStyle = "rgba(0,0,0,.12)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad, 652); ctx.lineTo(W-pad, 652); ctx.stroke();
+      ctx.font = "500 13px 'IBM Plex Mono', monospace";
+      ctx.fillStyle = "#6b6b74";
+      ctx.fillText("Sampled with Hue Harmony", pad, 678);
+      return c;
+    }
+
+    function downloadPalette(btn){
+      if(!pins.length) return;
+      var c = renderExport();
+      var name = "palette-" + pins.length + "-colours.jpg";
+      var finish = function(){
+        var old = "Download palette";
+        btn.textContent = "Saved";
+        setTimeout(function(){ btn.textContent = old; }, 1300);
+      };
+      if(c.toBlob){
+        c.toBlob(function(blob){
+          if(!blob) return;
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url; a.download = name;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+          finish();
+        }, "image/jpeg", 0.92);
+      } else {
+        var a2 = document.createElement("a");
+        a2.href = c.toDataURL("image/jpeg", 0.92); a2.download = name;
+        document.body.appendChild(a2); a2.click(); a2.remove();
+        finish();
+      }
+    }
+
+    function start(){
+      if(!started){
+        el("samp-disc").style.background = buildWheelGradient();
+        wire();
+        started = true;
+      }
+      render();
+    }
+
+    return { start:start };
+  })();
+
   // ---------- routing ----------
   // Hash-based so the whole thing still works as a static file, straight off disk
   // or off Netlify, with no server rewrites and no 404 on reload.
@@ -2098,6 +2621,9 @@
     } else if(head === "mapper"){
       showScreen("screen-map");
       mapper.start(arg);
+    } else if(head === "sampler"){
+      showScreen("screen-samp");
+      sampler.start();
     } else {
       showScreen("screen-home");
     }
@@ -2110,6 +2636,7 @@
   document.getElementById("home-tools-btn").addEventListener("click", function(){ go("tools"); });
   document.getElementById("tool-picker-btn").addEventListener("click", function(){ go("picker"); });
   document.getElementById("tool-mapper-btn").addEventListener("click", function(){ go("mapper"); });
+  document.getElementById("tool-samp-btn").addEventListener("click", function(){ go("sampler"); });
 
   document.getElementById("download-img-btn").addEventListener("click", function(){
     picker.downloadImage(this);

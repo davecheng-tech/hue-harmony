@@ -5,7 +5,7 @@
 The landing page splits into two sections:
 
 - **Quiz** — practice naming and placing colour-scheme relationships on the wheel: monochromatic, analogous, complementary, split-complementary, triadic and tetradic.
-- **Tools** — interactive colour utilities: an HSL picker and a colour mapper for plotting several colours on one wheel.
+- **Tools** — interactive colour utilities: an HSL picker, a colour mapper for plotting several colours on one wheel, and an image palette sampler for pulling colours off a photo.
 
 Both plot the same wheel: Adobe's artist (RYB-style) wheel, where red sits opposite green. See [The wheel](#the-wheel) below.
 
@@ -45,6 +45,19 @@ Plot up to **six** colours on one wheel and see how they sit relative to each ot
 
 Colour relationships are deliberately *not* computed or named here — the tool just plots what you give it and lets the arrangement speak for itself.
 
+### Image palette
+
+Upload a photo and drop eyedroppers on it to sample real colours. Up to **eight** samples, each a numbered pin on the image with a matching numbered dot on the wheel and swatch in the strip.
+
+- Click the image to drop a pin; drag a pin to move it and it re-samples live.
+- Each sample averages a small 5×5 patch rather than one pixel, so a bit of photo grain or JPEG noise doesn't decide the colour.
+- Click a pin, dot or swatch to select it; the selected colour's `hsl()` / `rgb()` / hex sit below with copy buttons.
+- **Download palette** saves a JPG of the wheel, the swatches with their hex values, *and* the source image with its pins marked.
+
+Samples are read-only here — this tool is for taking colours off a photo, not adjusting them. To tweak one, copy its hex into the picker or mapper.
+
+**The image never leaves the device.** It's read with `FileReader` and drawn to a canvas in the page; nothing is uploaded anywhere.
+
 ## The wheel
 
 The wheel is aligned to the **Adobe Express colour wheel**, not a raw HSL circle. That means it's the artist's (RYB-style) wheel: red sits opposite green, and cyan opposite orange. Red is at 0°/360° at the top, running clockwise through orange (~30°), yellow (~120°), green (180°), cyan (~216°), blue (~270°) and magenta (~330°).
@@ -76,6 +89,7 @@ Every screen has a URL, using a hash so the whole thing stays a static file with
 | `#picker/3a7fc1` | The picker, opened on that colour |
 | `#mapper` | The colour mapper |
 | `#mapper/ec1313-e6ec13-1391ec` | The mapper, loaded with that palette |
+| `#sampler` | The image palette sampler |
 
 The picker keeps the address bar on the current colour as you drag, via `replaceState` so it doesn't fill the back button with every intermediate shade. **Copy link to this colour** puts that URL on the clipboard. An unrecognised route falls back to the main menu, and a malformed hex is ignored rather than throwing.
 
