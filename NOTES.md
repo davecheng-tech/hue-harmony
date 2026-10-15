@@ -78,4 +78,6 @@ The trade-off is that the export duplicates the layout rather than deriving it, 
 
 The hue ring is drawn as 720 half-degree wedges with a 0.75° sweep each, the slight overlap hiding seams between them; `createConicGradient` would be tidier but is less widely supported. Wedge hues go through `wheelToHue()`, so the exported wheel is the same RYB wheel as the screen.
 
+Canvas text state is sticky, and this bit this code once: the tick labels set `textAlign = "center"`, which then centred the code-row labels and values until `drawExportWheel()` was made to restore `left`/`alphabetic` on the way out. Set alignment and baseline explicitly before any text run rather than inheriting whatever the previous run left behind.
+
 Text that could overflow is measured first: the header subtitle is placed at the measured width of the wordmark, and a footer URL wider than the content box falls back to the bare `#picker/<hex>` route.

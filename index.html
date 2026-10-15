@@ -1476,6 +1476,9 @@
       ctx.arc(cx + R*mf*Math.sin(wa), cy - R*mf*Math.cos(wa), 13, 0, Math.PI*2);
       ctx.fillStyle = cssHsl(); ctx.fill();
       ctx.strokeStyle = "#18181b"; ctx.lineWidth = 3; ctx.stroke();
+
+      // the tick labels above set centre alignment; put it back for later text
+      ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
     }
 
     function drawExportSlider(ctx, y, label, value, unit, grad){
@@ -1543,7 +1546,7 @@
         var ry = 344 + i*58;
         roundRect(ctx, colX, ry, colW, 46, 10);
         ctx.fillStyle = "#efece6"; ctx.fill();
-        ctx.textBaseline = "middle";
+        ctx.textBaseline = "middle"; ctx.textAlign = "left";
         ctx.font = "700 11px Inter, system-ui, sans-serif";
         ctx.fillStyle = "#6b6b74";
         ctx.fillText(row[0], colX + 14, ry + 23);
