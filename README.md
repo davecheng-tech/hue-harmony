@@ -52,7 +52,7 @@ Upload a photo and drop eyedroppers on it to sample real colours. Up to **six** 
 - Click the image to drop a pin; drag a pin to move it and it re-samples live.
 - Each sample averages a small 5×5 patch rather than one pixel, so a bit of photo grain or JPEG noise doesn't decide the colour.
 - Click a pin, dot or swatch to select it; the selected colour's `hsl()` / `rgb()` / hex sit below with copy buttons.
-- **Download palette** saves a JPG of the wheel, the swatches with their hex values, *and* the source image with its pins marked.
+- **Download palette** saves a JPG (`palette-6-colours.jpg`) of the wheel, the swatches with their hex values, *and* the source image with its pins marked.
 
 Samples are read-only here — this tool is for taking colours off a photo, not adjusting them. To tweak one, copy its hex into the picker or mapper.
 
