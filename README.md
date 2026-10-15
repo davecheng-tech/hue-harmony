@@ -5,7 +5,7 @@
 The landing page splits into two sections:
 
 - **Quiz** — practice naming and placing colour-scheme relationships on the wheel: monochromatic, analogous, complementary, split-complementary, triadic and tetradic.
-- **Tools** — interactive colour utilities, starting with an HSL picker and hue wheel.
+- **Tools** — interactive colour utilities: an HSL picker and a colour mapper for plotting several colours on one wheel.
 
 Both plot the same wheel: Adobe's artist (RYB-style) wheel, where red sits opposite green. See [The wheel](#the-wheel) below.
 
@@ -32,6 +32,18 @@ Sliders and numeric inputs for hue, saturation and lightness, with live `hsl()` 
 - Clicking or dragging on the wheel sets hue and saturation.
 
 The picker header groups both actions under a **This colour** label: **Copy link** puts a URL for the current colour on the clipboard, and **Download image** saves a JPG of the whole picker — wheel, swatch, `hsl()`/`rgb()`/hex values and sliders — named after the colour (`colour-ffe600.jpg`), with the colour's link along the bottom so the image points back at the live tool. The image is drawn on a canvas rather than screenshotting the page, so it's always the light theme at a fixed 1800×1652, identical from any machine.
+
+### Colour mapper
+
+Plot up to **six** colours on one wheel and see how they sit relative to each other. Each colour gets a numbered dot with a radius line to the centre, and a matching numbered swatch in the strip beside it.
+
+- Click a swatch or a dot to select it; the selected one is outlined and drawn on top.
+- Drag on the wheel to move the selected colour (hue by angle, saturation by distance from the centre — lightness is left alone).
+- Or edit it precisely with the H/S/L sliders and number inputs below.
+- Each swatch shows its hex; the selected colour's `hsl()` / `rgb()` / hex sit under the editor with copy buttons.
+- **Copy link** copies a URL containing the whole palette, so a set of colours can be handed out or handed in.
+
+Colour relationships are deliberately *not* computed or named here — the tool just plots what you give it and lets the arrangement speak for itself.
 
 ## The wheel
 
@@ -62,6 +74,8 @@ Every screen has a URL, using a hash so the whole thing stays a static file with
 | `#tools` | Tools menu |
 | `#picker` | The picker |
 | `#picker/3a7fc1` | The picker, opened on that colour |
+| `#mapper` | The colour mapper |
+| `#mapper/ec1313-e6ec13-1391ec` | The mapper, loaded with that palette |
 
 The picker keeps the address bar on the current colour as you drag, via `replaceState` so it doesn't fill the back button with every intermediate shade. **Copy link to this colour** puts that URL on the clipboard. An unrecognised route falls back to the main menu, and a malformed hex is ignored rather than throwing.
 

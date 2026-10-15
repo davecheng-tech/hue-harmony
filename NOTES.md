@@ -91,3 +91,20 @@ The hue ring is drawn as 720 half-degree wedges with a 0.75° sweep each, the sl
 Canvas text state is sticky, and this bit this code once: the tick labels set `textAlign = "center"`, which then centred the code-row labels and values until `drawExportWheel()` was made to restore `left`/`alphabetic` on the way out. Set alignment and baseline explicitly before any text run rather than inheriting whatever the previous run left behind.
 
 Text that could overflow is measured first: the header subtitle is placed at the measured width of the wordmark, and a footer URL wider than the content box falls back to the bare `#picker/<hex>` route.
+
+
+## Colour mapper
+
+`mapper` holds an array of `{h,s,l}` plus a selected index, capped at `MAX` (6). Everything else is derived: the dots, the swatch strip, the editor and the `#mapper/<hex>-<hex>-...` route all re-render from that array on every change, so there is one source of truth and no state to keep in sync.
+
+Interaction splits deliberately: dragging the wheel sets **hue and saturation only** and leaves lightness alone. Dragging is a two-dimensional gesture over a two-dimensional surface, so it can only honestly carry two of the three channels; letting it touch lightness as well would make a colour change in ways the student didn't ask for. Lightness is the sliders' job.
+
+Swatch chips (the number and the hex) sit on top of arbitrary user colours, so they pick their own contrast via `chipOn(l)` rather than assuming a light or dark background.
+
+Colour relationships are intentionally absent. The tool plots and nothing more; naming schemes is the quiz's job, and adding it here would duplicate that logic in a second place.
+
+## Shared colour helpers
+
+`hslToRgbArr` / `rgbToHslObj` / `hexOf` / `cssHslOf` / `cssRgbOf` / `parseHex` / `trackStyles` / `chipOn` / `copyText` sit above both tools. The picker originally owned private copies of the conversions; when the mapper needed them they were lifted out rather than duplicated. New tools should use these rather than re-deriving the maths.
+
+One trap this fixed: `wireCopy` used to bind every `.copy-btn`, including the header's Copy link and Download image buttons, which carry the class but name no `data-copy` target — so each click threw on `getElementById(null).textContent`. Copy buttons are now bound by `[data-copy]` and scoped to their own screen.
