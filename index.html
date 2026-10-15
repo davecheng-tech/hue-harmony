@@ -58,8 +58,8 @@
   h1,h2,h3{font-family:'Space Grotesk',system-ui,sans-serif;margin:0;}
   .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
   header.top{display:flex;flex-direction:column;gap:4px;margin-bottom:22px;}
-  header.top h1{font-size:clamp(28px,5vw,38px);letter-spacing:-0.02em;}
   header.top p{margin:0;color:var(--text-dim);font-size:14.5px;max-width:60ch;}
+  header.top h1{font-size:clamp(28px,5vw,38px);letter-spacing:-0.02em;}
 
   .card{
     background:var(--panel);
@@ -285,18 +285,298 @@
   }
   .breakdown .row .n{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;}
 
+  /* ---- shared tool/screen chrome ---- */
+  .screen-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .screen-head h2{font-size:19px;}
+
+  /* ---- HSL picker ---- */
+  .picker-body{
+    display:grid;
+    grid-template-columns:minmax(220px,300px) 1fr;
+    gap:26px;
+    align-items:start;
+  }
+  @media (max-width:640px){
+    .picker-body{grid-template-columns:1fr;}
+  }
+  .picker-wheel{margin:6px auto 10px;max-width:300px;}
+  /* disc is inset inside the SVG box so the degree labels sit within the layout */
+  .picker-wheel .wheel-disc,
+  .picker-wheel .wheel-veil{inset:12%;}
+  .wheel-veil{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    pointer-events:none;
+  }
+  .picker-wheel .wheel-disc{cursor:crosshair;}
+  .pick-svg .angle-label{font-size:4.2px;font-weight:700;fill:var(--text);}
+  .pick-svg .tick-label{font-size:3.4px;font-weight:600;fill:var(--text-dim);opacity:0.7;}
+
+  .picker-readout{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .swatch-big{
+    width:100%;
+    height:150px;
+    border-radius:14px;
+    border:1px solid var(--border);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);
+  }
+  .code-list{display:flex;flex-direction:column;gap:8px;}
+  .code-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:8px 10px;
+  }
+  .code-row .code-k{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    color:var(--text-dim);
+    width:34px;
+    flex-shrink:0;
+  }
+  .code-row code{
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:13.5px;
+    flex:1;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .copy-btn{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    border-radius:7px;
+    padding:3px 8px;
+    font-size:11px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .link-btn{margin-left:auto;padding:6px 11px;font-size:12px;}
+  .copy-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .slider-rows{display:flex;flex-direction:column;gap:14px;margin-top:22px;}
+  .sl-row{
+    display:grid;
+    grid-template-columns:18px 68px 16px 1fr;
+    align-items:center;
+    gap:9px;
+  }
+  .sl-unit{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .sl-row .sl-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:14px;
+  }
+  .sl-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13.5px;
+    width:100%;
+    padding:7px 8px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text);
+  }
+  .sl-num:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .sl-range{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:20px;
+    background:transparent;
+    cursor:pointer;
+  }
+  .sl-range:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px;}
+  .sl-range::-webkit-slider-runnable-track{
+    height:16px;
+    border-radius:5px;
+    border:1px solid var(--border);
+    background:var(--track,var(--panel-2));
+  }
+  .sl-range::-moz-range-track{
+    height:16px;
+    border-radius:5px;
+    border:1px solid var(--border);
+    background:var(--track,var(--panel-2));
+  }
+  .sl-range::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:14px;
+    height:24px;
+    margin-top:-5px;
+    border-radius:5px;
+    background:var(--panel);
+    border:2px solid var(--text);
+    box-shadow:0 1px 4px rgba(0,0,0,.35);
+  }
+  .sl-range::-moz-range-thumb{
+    width:12px;
+    height:22px;
+    border-radius:5px;
+    background:var(--panel);
+    border:2px solid var(--text);
+    box-shadow:0 1px 4px rgba(0,0,0,.35);
+  }
+  .hex-field{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .hex-field input{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13.5px;
+    width:120px;
+    padding:7px 9px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text);
+    text-transform:lowercase;
+  }
+  .hex-field input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+
   [hidden]{display:none!important;}
 </style>
 
 <div class="wrap">
   <header class="top">
     <h1>Hue Harmony</h1>
-    <p>Practice colour schemes on an HSB wheel</p>
+    <p id="tagline">Colour &amp; graphic design toolkit</p>
   </header>
 
-  <!-- START SCREEN -->
-  <section id="screen-start" class="card">
-    <h2 style="font-size:19px;margin-bottom:14px;">Choose a level</h2>
+  <!-- HOME SCREEN -->
+  <section id="screen-home" class="card">
+    <h2 style="font-size:19px;margin-bottom:14px;">Choose a section</h2>
+    <div class="diff-grid">
+      <button class="diff-btn" id="home-quiz-btn">
+        <div class="dot-row">
+          <span class="swatch" style="background:hsl(14,85%,55%)"></span>
+          <span class="swatch" style="background:hsl(134,85%,42%)"></span>
+          <span class="swatch" style="background:hsl(254,85%,62%)"></span>
+        </div>
+        <h3>Quiz</h3>
+        <p>Practice identifying and placing colour relationships on the wheel.</p>
+      </button>
+      <button class="diff-btn" id="home-tools-btn">
+        <div class="dot-row">
+          <span class="swatch" style="background:hsl(205,20%,55%)"></span>
+          <span class="swatch" style="background:hsl(205,55%,55%)"></span>
+          <span class="swatch" style="background:hsl(205,90%,55%)"></span>
+        </div>
+        <h3>Tools</h3>
+        <p>Interactive colour utilities — starting with an HSL picker and hue wheel.</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- TOOLS MENU -->
+  <section id="screen-tools" class="card" hidden>
+    <div class="screen-head">
+      <button class="quit-btn" data-goto="home">&larr; Main menu</button>
+      <h2>Tools</h2>
+    </div>
+    <div class="diff-grid">
+      <button class="diff-btn" id="tool-picker-btn">
+        <div class="dot-row">
+          <span class="swatch" style="background:hsl(28,90%,50%)"></span>
+          <span class="swatch" style="background:hsl(28,90%,65%)"></span>
+          <span class="swatch" style="background:hsl(28,90%,80%)"></span>
+        </div>
+        <h3>HSL colour picker</h3>
+        <p>Sliders and numeric values for hue, saturation and lightness, with the colour plotted on a hue wheel.</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- HSL PICKER -->
+  <section id="screen-picker" class="card" hidden>
+    <div class="screen-head">
+      <button class="quit-btn" data-goto="tools">&larr; Tools</button>
+      <h2>HSL colour picker</h2>
+      <button class="copy-btn link-btn" id="copy-link-btn" title="Copy a URL that reopens the picker on this exact colour">Copy link to this colour</button>
+    </div>
+
+    <div class="picker-body">
+      <div class="wheel-box picker-wheel">
+        <div class="wheel-disc" id="pick-disc"></div>
+        <div class="wheel-veil" id="pick-veil"></div>
+        <svg class="wheel-svg pick-svg" id="pick-svg" viewBox="0 0 100 100"></svg>
+      </div>
+
+      <div class="picker-readout">
+        <div class="swatch-big" id="pick-swatch"></div>
+        <div class="code-list">
+          <div class="code-row">
+            <span class="code-k">HSL</span><code id="code-hsl"></code>
+            <button class="copy-btn" data-copy="code-hsl">Copy</button>
+          </div>
+          <div class="code-row">
+            <span class="code-k">RGB</span><code id="code-rgb"></code>
+            <button class="copy-btn" data-copy="code-rgb">Copy</button>
+          </div>
+          <div class="code-row">
+            <span class="code-k">HEX</span><code id="code-hex"></code>
+            <button class="copy-btn" data-copy="code-hex">Copy</button>
+          </div>
+        </div>
+        <label class="hex-field">Enter a hex value
+          <input id="hex-input" type="text" spellcheck="false" maxlength="7" value="#ff0000">
+        </label>
+      </div>
+    </div>
+
+    <div class="slider-rows">
+      <div class="sl-row">
+        <label class="sl-label" for="sl-h">H</label>
+        <input class="sl-num" id="num-h" type="number" min="0" max="360" step="1" value="0" aria-label="HSL hue value, 0 to 360, unitless">
+        <span class="sl-unit"></span>
+        <input class="sl-range" id="sl-h" type="range" min="0" max="360" step="1" value="0" aria-label="HSL hue value slider">
+      </div>
+      <div class="sl-row">
+        <label class="sl-label" for="sl-s">S</label>
+        <input class="sl-num" id="num-s" type="number" min="0" max="100" step="1" value="100" aria-label="Saturation percent">
+        <span class="sl-unit">%</span>
+        <input class="sl-range" id="sl-s" type="range" min="0" max="100" step="1" value="100" aria-label="Saturation slider">
+      </div>
+      <div class="sl-row">
+        <label class="sl-label" for="sl-l">L</label>
+        <input class="sl-num" id="num-l" type="number" min="0" max="100" step="1" value="50" aria-label="Lightness percent">
+        <span class="sl-unit">%</span>
+        <input class="sl-range" id="sl-l" type="range" min="0" max="100" step="1" value="50" aria-label="Lightness slider">
+      </div>
+    </div>
+
+  </section>
+
+  <!-- QUIZ LEVEL MENU -->
+  <section id="screen-start" class="card" hidden>
+    <div class="screen-head">
+      <button class="quit-btn" data-goto="home">&larr; Main menu</button>
+      <h2>Choose a level</h2>
+    </div>
 
     <div class="diff-grid" id="diff-grid"></div>
   </section>
@@ -304,7 +584,7 @@
   <!-- QUIZ SCREEN -->
   <section id="screen-quiz" class="card" hidden>
     <div class="quiz-head">
-      <button class="quit-btn" id="quit-btn" title="Abort this round and return to the level menu">&larr; Main menu</button>
+      <button class="quit-btn" id="quit-btn" title="Abort this round and return to the level menu">&larr; Levels</button>
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="score-pill" id="score-pill">0 / 10</div>
     </div>
@@ -386,6 +666,33 @@
   }
   function fmtDeg(n){ return Math.round(n) + "°"; }
 
+  // ---------- Adobe-style (RYB) wheel mapping ----------
+  // Sampled from the Adobe Express colour-wheel widget at 0.25deg resolution.
+  // Index i = wheel angle i*10 (red at 0, clockwise); value = the RGB/HSL hue drawn there.
+  // On this wheel red sits opposite green and cyan opposite orange, the artist's
+  // convention Adobe uses -- unlike a raw HSL circle, where red sits opposite cyan.
+  var WHEEL_HUE = [0,5.9,11.6,17.8,23.6,29.4,34.6,39.1,43.8,48.4,52.6,56.5,61.7,
+                   75.5,89.8,104.2,117.6,129.5,139,150.5,161.3,171.9,182.9,193.8,
+                   205.1,214.9,225.2,235.6,246.6,257.4,268.2,278,288.6,300.2,320.9,346.1];
+
+  // wheel angle -> RGB hue
+  function wheelToHue(wa){
+    wa = norm(wa) / 10;
+    var i = Math.floor(wa), t = wa - i;
+    var a = WHEEL_HUE[i % 36], b = i === 35 ? 360 : WHEEL_HUE[(i+1) % 36];
+    return norm(a + (b - a) * t);
+  }
+
+  // RGB hue -> wheel angle (inverse of the table above)
+  function hueToWheel(h){
+    h = norm(h);
+    for(var i=0; i<36; i++){
+      var a = WHEEL_HUE[i], b = i === 35 ? 360 : WHEEL_HUE[i+1];
+      if(h >= a && h <= b) return norm(i*10 + (b === a ? 0 : (h - a)/(b - a) * 10));
+    }
+    return 0;
+  }
+
   function hsbToRgb(h,s,b){
     h = norm(h); s/=100; b/=100;
     var c = b*s, x = c*(1-Math.abs((h/60)%2-1)), m = b-c, r,g,bl;
@@ -396,7 +703,11 @@
     return "rgb(" + r + "," + g + "," + bl + ")";
   }
 
-  // wheel coords: hue 0deg = top (matches CSS conic-gradient 'from 0deg'), clockwise
+  // Quiz hues are WHEEL ANGLES on the Adobe/RYB wheel, not raw HSL hues:
+  // every scheme angle is measured on that wheel, and only the paint step converts.
+  function wheelRgb(wa, s, b){ return hsbToRgb(wheelToHue(wa), s, b); }
+
+  // wheel coords: wheel angle 0deg = top (matches CSS conic-gradient 'from 0deg'), clockwise
   function hueToXY(h, satFrac){
     var rad = h * Math.PI/180;
     var x = 50 + 50*satFrac*Math.sin(rad);
@@ -407,8 +718,8 @@
   // ---------- wheel background ----------
   function buildWheelGradient(){
     var stops = [];
-    for(var d=0; d<=360; d+=6){
-      stops.push("hsl(" + d + ",100%,50%) " + d + "deg");
+    for(var d=0; d<=360; d+=4){
+      stops.push("hsl(" + wheelToHue(d).toFixed(1) + ",100%,50%) " + d + "deg");
     }
     return "radial-gradient(circle at 50% 50%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%), " +
            "conic-gradient(from 0deg, " + stops.join(",") + ")";
@@ -566,7 +877,7 @@
       case "Monochromatic":
         shown = [{h:base, s:rand(MONO_SAT_RANGE[0],MONO_SAT_RANGE[1]), b:rand(MONO_BRI_RANGE[0],MONO_BRI_RANGE[1]), tag:"Given"}];
         targets = [base];
-        prompt = "Pick the colour that belongs to the <b>same monochromatic family</b> as the colour shown (hue <span class=\"mono hue-val\">" + fmtDeg(base) + "</span>).";
+        prompt = "Pick the colour that belongs to the <b>same monochromatic family</b> as the colour shown (wheel angle <span class=\"mono hue-val\">" + fmtDeg(base) + "</span>).";
         break;
       case "Analogous":
         var aSpacing = ANALOGOUS_SPACING;
@@ -616,7 +927,7 @@
         break;
     }
 
-    var targetsLabel = "Target hue" + (targets.length>1 ? "s" : "") + ": " + targets.map(fmtDeg).join(" or ") +
+    var targetsLabel = "Target angle" + (targets.length>1 ? "s" : "") + ": " + targets.map(fmtDeg).join(" or ") +
       " (within " + params.tol + "° counts).";
 
     return { mode:"place", type:type, shown:shown, targets:targets, tol:params.tol, prompt:prompt, targetsLabel:targetsLabel };
@@ -711,16 +1022,16 @@
       var swatches = d.key==="mixed" ? [60,180,300].map(function(h){ return {h:h, s:88, b:94}; })
         : (d.key==="easy" ? [90] : d.key==="medium" ? [42,90] : [22,56,90]).map(function(s){ return {h:swatchHue, s:s, b:92}; });
       var dots = swatches.map(function(sw){
-        return "<span class=\"swatch\" style=\"background:" + hsbToRgb(sw.h, sw.s, sw.b) + "\"></span>";
+        return "<span class=\"swatch\" style=\"background:" + wheelRgb(sw.h, sw.s, sw.b) + "\"></span>";
       }).join("");
       btn.innerHTML = "<div class=\"dot-row\">" + dots + "</div><h3>" + d.label + "</h3><p>" + d.desc + "</p>";
-      btn.addEventListener("click", function(){ startQuiz(d.key); });
+      btn.addEventListener("click", function(){ go("quiz/" + d.key); });
       grid.appendChild(btn);
     });
   }
 
   function showScreen(id){
-    ["screen-start","screen-quiz","screen-end"].forEach(function(s){
+    ["screen-home","screen-start","screen-tools","screen-picker","screen-quiz","screen-end"].forEach(function(s){
       document.getElementById(s).hidden = (s !== id);
     });
   }
@@ -758,7 +1069,7 @@
     if(q.mode === "identify"){
       document.getElementById("q-prompt").innerHTML = q.prompt;
       q.points.forEach(function(p){
-        drawPoint(svg, p.h, p.s/100, hsbToRgb(p.h,p.s,p.b), p.label, "given", null);
+        drawPoint(svg, p.h, p.s/100, wheelRgb(p.h,p.s,p.b), p.label, "given", null);
       });
       q.options.forEach(function(name, i){
         var btn = document.createElement("button");
@@ -770,14 +1081,14 @@
     } else {
       document.getElementById("q-prompt").innerHTML = q.prompt;
       q.shown.forEach(function(s){
-        drawPoint(svg, s.h, s.s/100, hsbToRgb(s.h,s.s,s.b), s.tag, "given", null);
+        drawPoint(svg, s.h, s.s/100, wheelRgb(s.h,s.s,s.b), s.tag, "given", null);
       });
       var giv = document.createElement("div");
       q.shown.forEach(function(s){
         var row = document.createElement("div");
         row.className = "given-label";
         var label = /^\d+$/.test(s.tag) ? "Colour " + s.tag : s.tag;
-        row.innerHTML = "<span class=\"given-swatch\" style=\"background:" + hsbToRgb(s.h,s.s,s.b) + "\"></span> " + label + " — hue " + fmtDeg(s.h);
+        row.innerHTML = "<span class=\"given-swatch\" style=\"background:" + wheelRgb(s.h,s.s,s.b) + "\"></span> " + label + " — wheel angle " + fmtDeg(s.h);
         giv.appendChild(row);
       });
       givenInfo.appendChild(giv);
@@ -841,7 +1152,7 @@
     var correct = q.targets.some(function(t){ return angDiff(hue,t) <= q.tol; });
     var nearest = q.targets.reduce(function(a,b){ return angDiff(hue,a) <= angDiff(hue,b) ? a : b; });
     var delta = angDiff(hue, nearest);
-    var color = hsbToRgb(hue, Math.max(satFrac*100, 20), 88);
+    var color = wheelRgb(hue, Math.max(satFrac*100, 20), 88);
 
     drawPoint(svg, hue, Math.max(satFrac, 0.14), color, "You", correct ? "correct" : "wrong", null);
     q.targets.forEach(function(t){ drawTargetRing(svg, t); });
@@ -884,9 +1195,288 @@
   }
 
   document.getElementById("replay-btn").addEventListener("click", function(){ startQuiz(state.diff); });
-  document.getElementById("change-level-btn").addEventListener("click", function(){ showScreen("screen-start"); });
-  document.getElementById("quit-btn").addEventListener("click", function(){ showScreen("screen-start"); });
+  document.getElementById("change-level-btn").addEventListener("click", function(){ go("quiz"); });
+  document.getElementById("quit-btn").addEventListener("click", function(){ go("quiz"); });
+
+  // ---------- HSL colour picker tool ----------
+  var picker = (function(){
+    var hsl = { h:0, s:100, l:50 };
+    var started = false;
+    var R = 38; // disc radius in viewBox units; leaves room for the degree labels
+
+    function hslToRgb(h,s,l){
+      h = norm(h); s/=100; l/=100;
+      var c = (1 - Math.abs(2*l - 1)) * s,
+          x = c * (1 - Math.abs((h/60) % 2 - 1)),
+          m = l - c/2, r,g,b;
+      if(h<60){r=c;g=x;b=0;} else if(h<120){r=x;g=c;b=0;}
+      else if(h<180){r=0;g=c;b=x;} else if(h<240){r=0;g=x;b=c;}
+      else if(h<300){r=x;g=0;b=c;} else {r=c;g=0;b=x;}
+      return [Math.round((r+m)*255), Math.round((g+m)*255), Math.round((b+m)*255)];
+    }
+
+    function rgbToHsl(r,g,b){
+      r/=255; g/=255; b/=255;
+      var max = Math.max(r,g,b), min = Math.min(r,g,b), d = max-min,
+          l = (max+min)/2, h = 0, s = 0;
+      if(d !== 0){
+        s = d / (1 - Math.abs(2*l - 1));
+        if(max === r) h = 60 * (((g-b)/d) % 6);
+        else if(max === g) h = 60 * ((b-r)/d + 2);
+        else h = 60 * ((r-g)/d + 4);
+      }
+      return { h:norm(h), s:s*100, l:l*100 };
+    }
+
+    function hex(){
+      var rgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+      return "#" + rgb.map(function(v){ return ("0" + v.toString(16)).slice(-2); }).join("");
+    }
+    function cssHsl(){ return "hsl(" + Math.round(hsl.h) % 360 + ", " + Math.round(hsl.s) + "%, " + Math.round(hsl.l) + "%)"; }
+    function cssRgb(){ return "rgb(" + hslToRgb(hsl.h, hsl.s, hsl.l).join(", ") + ")"; }
+
+    function el(id){ return document.getElementById(id); }
+
+    // position on the wheel for a given RGB hue
+    function wxy(h, frac){
+      var rad = hueToWheel(h) * Math.PI/180;
+      return [50 + R*frac*Math.sin(rad), 50 - R*frac*Math.cos(rad)];
+    }
+    // position for a raw wheel angle (ticks and labels)
+    function axy(wa, frac){
+      var rad = wa * Math.PI/180;
+      return [50 + R*frac*Math.sin(rad), 50 - R*frac*Math.cos(rad)];
+    }
+
+    function paintSliderTracks(){
+      var h = Math.round(hsl.h), s = Math.round(hsl.s), l = Math.round(hsl.l);
+      var hueStops = [];
+      for(var d=0; d<=360; d+=15) hueStops.push("hsl(" + d + "," + s + "%," + l + "%)");
+      el("sl-h").style.setProperty("--track", "linear-gradient(to right," + hueStops.join(",") + ")");
+      el("sl-s").style.setProperty("--track",
+        "linear-gradient(to right,hsl(" + h + ",0%," + l + "%),hsl(" + h + ",100%," + l + "%))");
+      el("sl-l").style.setProperty("--track",
+        "linear-gradient(to right,hsl(" + h + "," + s + "%,0%),hsl(" + h + "," + s + "%,50%),hsl(" + h + "," + s + "%,100%))");
+    }
+
+    function drawWheel(){
+      var svg = el("pick-svg");
+      while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+      // lightness veil over the hue disc
+      var veil = el("pick-veil");
+      veil.style.background = hsl.l >= 50
+        ? "rgba(255,255,255," + ((hsl.l - 50)/50).toFixed(3) + ")"
+        : "rgba(0,0,0," + ((50 - hsl.l)/50).toFixed(3) + ")";
+
+      // degree ticks every 30, labelled, sitting inside the viewBox
+      for(var d=0; d<360; d+=30){
+        var a = axy(d, 1), b = axy(d, 0.92);
+        svg.appendChild(svgEl("line", {
+          x1:a[0], y1:a[1], x2:b[0], y2:b[1],
+          stroke:"var(--text)", "stroke-width": d % 90 === 0 ? "0.7" : "0.4",
+          opacity: d % 90 === 0 ? "0.5" : "0.3"
+        }));
+        var out = axy(d, 1.16);
+        var t = svgEl("text", { x:out[0], y:out[1]+1.2, "text-anchor":"middle", "class":"tick-label" });
+        t.textContent = d + "°";
+        svg.appendChild(t);
+      }
+
+      // full-radius hue pointer, drawn regardless of saturation
+      var tip = wxy(hsl.h, 1);
+      svg.appendChild(svgEl("line", {
+        x1:"50", y1:"50", x2:tip[0], y2:tip[1],
+        stroke:"var(--text)", "stroke-width":"0.9", opacity:"0.85", "stroke-linecap":"round"
+      }));
+      svg.appendChild(svgEl("circle", { cx:"50", cy:"50", r:"1.4", fill:"var(--text)", opacity:"0.85" }));
+
+      // marker at the saturation distance along that line
+      var at = wxy(hsl.h, hsl.s/100);
+      svg.appendChild(svgEl("circle", {
+        cx:at[0], cy:at[1], r:"4",
+        fill:cssHsl(), stroke:"var(--text)", "stroke-width":"1.1"
+      }));
+    }
+
+    function syncInputs(skip){
+      ["h","s","l"].forEach(function(k){
+        var v = Math.round(hsl[k]);
+        var r = el("sl-" + k), n = el("num-" + k);
+        if(r !== skip) r.value = v;
+        if(n !== skip) n.value = v;
+      });
+      if(skip !== el("hex-input")) el("hex-input").value = hex();
+    }
+
+    function render(skip){
+      syncInputs(skip);
+      paintSliderTracks();
+      drawWheel();
+      el("pick-swatch").style.background = cssHsl();
+      el("code-hsl").textContent = cssHsl();
+      el("code-rgb").textContent = cssRgb();
+      el("code-hex").textContent = hex();
+      syncUrl();
+    }
+
+    function setChannel(key, value, skip){
+      hsl[key] = Math.max(0, Math.min(key === "h" ? 360 : 100, value));
+      render(skip);
+    }
+
+    function wireChannel(key){
+      var r = el("sl-" + key), n = el("num-" + key);
+      r.addEventListener("input", function(){ setChannel(key, parseFloat(r.value), r); });
+      n.addEventListener("input", function(){
+        var v = parseFloat(n.value);
+        if(!isNaN(v)) setChannel(key, v, n);
+      });
+      n.addEventListener("blur", function(){ render(null); });
+    }
+
+    function wireWheel(){
+      var box = document.querySelector(".picker-wheel");
+      function pickFrom(e){
+        var rect = box.getBoundingClientRect();
+        var dx = (e.clientX - rect.left) / rect.width * 100 - 50;
+        var dy = (e.clientY - rect.top) / rect.height * 100 - 50;
+        hsl.h = wheelToHue(norm(Math.atan2(dx, -dy) * 180/Math.PI));
+        hsl.s = Math.min(100, Math.sqrt(dx*dx + dy*dy) / R * 100);
+        render(null);
+      }
+      box.addEventListener("pointerdown", function(e){
+        e.preventDefault();
+        box.setPointerCapture(e.pointerId);
+        pickFrom(e);
+      });
+      box.addEventListener("pointermove", function(e){
+        if(box.hasPointerCapture && box.hasPointerCapture(e.pointerId)) pickFrom(e);
+      });
+      box.addEventListener("pointerup", function(e){
+        if(box.hasPointerCapture && box.hasPointerCapture(e.pointerId)) box.releasePointerCapture(e.pointerId);
+      });
+    }
+
+    // returns true if the string was a usable hex colour
+    function applyHex(str){
+      var v = String(str).trim().replace(/^#/, "");
+      if(v.length === 3) v = v.split("").map(function(c){ return c + c; }).join("");
+      if(!/^[0-9a-fA-F]{6}$/.test(v)) return false;
+      var got = rgbToHsl(parseInt(v.slice(0,2),16), parseInt(v.slice(2,4),16), parseInt(v.slice(4,6),16));
+      // a pure grey has no meaningful hue -- keep the current angle rather than snapping to 0
+      hsl.h = got.s < 0.5 ? hsl.h : got.h;
+      hsl.s = got.s;
+      hsl.l = got.l;
+      return true;
+    }
+
+    function wireHex(){
+      var input = el("hex-input");
+      input.addEventListener("input", function(){
+        if(applyHex(input.value)) render(input);
+      });
+      input.addEventListener("blur", function(){ render(null); });
+    }
+
+    function wireCopy(){
+      document.querySelectorAll(".copy-btn").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var text = el(btn.getAttribute("data-copy")).textContent;
+          var done = function(){
+            var old = btn.textContent;
+            btn.textContent = "Copied";
+            setTimeout(function(){ btn.textContent = old; }, 1100);
+          };
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(text).then(done, function(){});
+          }
+        });
+      });
+    }
+
+    // Keep the address bar on the current colour without pushing history entries.
+    // replaceState can throw on a file:// page, so a failure here is non-fatal --
+    // the Copy-link button builds its URL independently.
+    function syncUrl(){
+      if(document.getElementById("screen-picker").hidden) return;
+      try{ history.replaceState(null, "", "#picker/" + hex().slice(1)); }catch(e){}
+    }
+
+    function shareUrl(){
+      return location.href.split("#")[0] + "#picker/" + hex().slice(1);
+    }
+
+    function start(hexArg){
+      if(hexArg) applyHex(hexArg);
+      if(!started){
+        el("pick-disc").style.background = buildWheelGradient();
+        ["h","s","l"].forEach(wireChannel);
+        wireWheel();
+        wireHex();
+        wireCopy();
+        started = true;
+      }
+      render(null);
+    }
+
+    return { start:start, shareUrl:shareUrl };
+  })();
+
+  // ---------- routing ----------
+  // Hash-based so the whole thing still works as a static file, straight off disk
+  // or off Netlify, with no server rewrites and no 404 on reload.
+  //
+  //   #home            main menu
+  //   #quiz            level menu
+  //   #quiz/hard       start a round at that level
+  //   #tools           tools menu
+  //   #picker          picker, on whatever colour it last held
+  //   #picker/3a7fc1   picker, opened on that colour
+  function go(route){
+    if(location.hash === "#" + route) applyRoute();  // same hash fires no event
+    else location.hash = route;
+  }
+
+  function applyRoute(){
+    var parts = location.hash.replace(/^#\/?/, "").split("/");
+    var head = parts[0] || "home";
+    var arg = parts[1] || "";
+
+    if(head === "quiz"){
+      var valid = DIFFICULTIES.some(function(d){ return d.key === arg; });
+      if(valid) startQuiz(arg);
+      else showScreen("screen-start");
+    } else if(head === "tools"){
+      showScreen("screen-tools");
+    } else if(head === "picker"){
+      showScreen("screen-picker");
+      picker.start(arg);
+    } else {
+      showScreen("screen-home");
+    }
+  }
+
+  document.querySelectorAll("[data-goto]").forEach(function(btn){
+    btn.addEventListener("click", function(){ go(btn.getAttribute("data-goto")); });
+  });
+  document.getElementById("home-quiz-btn").addEventListener("click", function(){ go("quiz"); });
+  document.getElementById("home-tools-btn").addEventListener("click", function(){ go("tools"); });
+  document.getElementById("tool-picker-btn").addEventListener("click", function(){ go("picker"); });
+
+  document.getElementById("copy-link-btn").addEventListener("click", function(){
+    var btn = this, url = picker.shareUrl();
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){
+        btn.textContent = "Link copied";
+        setTimeout(function(){ btn.textContent = "Copy link to this colour"; }, 1300);
+      }, function(){});
+    }
+  });
+
+  window.addEventListener("hashchange", applyRoute);
 
   renderDiffGrid();
+  applyRoute();
 })();
 </script>

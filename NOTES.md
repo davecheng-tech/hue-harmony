@@ -1,14 +1,24 @@
 # Notes for future edits
 
-Internal design notes on `index.html` — the "why" behind values that aren't obvious from the code alone. Read this before tuning difficulty or adding a relationship type.
+Internal design notes on `index.html` — the "why" behind values that aren't obvious from the code alone. Read this before tuning difficulty, adding a relationship type, or touching the wheel.
+
+`index.html` holds the whole toolkit: the quiz, the tools, and the hash router that gives each screen a URL.
 
 ## Wheel geometry
 
-The wheel is drawn with two stacked CSS gradients on `.wheel-disc` (see `buildWheelGradient`): a `conic-gradient` for hue, with a white `radial-gradient` on top that fades out toward the edge. Since HSB saturation at brightness=100 is exactly a linear mix toward white, this reproduces a true HSB wheel without a canvas or per-pixel math.
+The wheel is drawn with two stacked CSS gradients on `.wheel-disc` (see `buildWheelGradient`): a `conic-gradient` for hue, with a white `radial-gradient` on top that fades out toward the edge. Since HSB saturation at brightness=100 is exactly a linear mix toward white, this reproduces a true HSB wheel without a canvas or per-pixel math. The hues fed into that gradient are warped — see the next section.
 
-Angle convention: **0° is at the top, increasing clockwise** — matches `conic-gradient(from 0deg, ...)`'s default direction. `hueToXY()` and the click-handler's inverse math in `attachWheelClickHandler` must stay in sync with this; if you ever change one, change the other.
+## The wheel is RYB, not raw HSL
 
-Everything else (given colours, option dots, target rings) is plotted in an SVG overlay (`viewBox="0 0 100 100"`, hue mapped to angle, saturation mapped to radius as a 0–1 fraction).
+**Both the quiz and the picker plot Adobe's artist wheel, where red sits opposite green and cyan opposite orange** — not the raw HSL circle, where red sits opposite cyan. `WHEEL_HUE` is a 36-entry lookup table (one entry per 10° of wheel angle) giving the RGB/HSL hue drawn at that angle; `wheelToHue()` and `hueToWheel()` interpolate in each direction.
+
+The table was produced by sampling the Adobe Express colour-wheel widget from a screenshot at 0.25° resolution around the rim and converting each sample to its true RGB hue. It checks out against Adobe's own output: the palette pair `#FC0F35` / `#0FFC3C` that Adobe generates as complements lands 179° apart on this wheel.
+
+The consequence for the quiz: **every hue value in the question generator is a wheel angle, not an HSL hue.** All the scheme math (`genShape`, `angDiff`, targets, tolerances) stays in wheel-angle space, and the conversion happens only at the paint step, via `wheelRgb(wheelAngle, s, b)`. If you add a code path that turns a quiz hue into a colour, call `wheelRgb`, never `hsbToRgb` directly — the latter would silently paint the raw-HSL colour at that angle and the dot would no longer match the wheel underneath it.
+
+Angle convention: **0° (red) is at the top, increasing clockwise** — matches `conic-gradient(from 0deg, ...)`'s default direction. `hueToXY()` and the click-handler's inverse math in `attachWheelClickHandler` must stay in sync with this; if you ever change one, change the other.
+
+Everything else (given colours, option dots, target rings) is plotted in an SVG overlay (`viewBox="0 0 100 100"`, wheel angle mapped to angle, saturation mapped to radius as a 0–1 fraction).
 
 ## Difficulty tuning (`DIFFICULTIES`)
 
@@ -46,3 +56,13 @@ If you add a 7th relationship type, you need to touch all of:
 - No persistence — closing the tab loses your streak. Deliberate; this is meant to be a disposable drill, not a tracked gradebook.
 - No keyboard-accessible way to answer Hard-mode questions (the wheel is a plain click target, no arrow-key placement). Fine for a classroom laptop/tablet context; would need work for a fully accessible deploy.
 - Explanations are template strings, not proper i18n. Fine for a single-language classroom tool; would need restructuring for translation.
+
+
+## Naming: "wheel angle" vs "H"
+
+These are two different numbers for the same colour, and the rule is stronger than careful labelling: **no screen ever states both.**
+
+- **The picker states only `H`** — sliders, `hsl()`, `rgb()`, hex. Its wheel carries degree ticks (a protractor scale on the drawing), but nothing is labelled as the colour's angle. Don't reintroduce an angle readout here; that's what the removed `wheel-readout` block was, and it forced the "which number is the real one?" question onto every student.
+- **The quiz states only wheel angles** — it never renders an `H` value, so degrees carry no ambiguity there and "complements are 180° apart" holds exactly.
+
+Never write `°` after an `H` value, and avoid the phrase "hue angle" entirely — it reads as a physical angle on the wheel, which is what caused the confusion originally. Say "wheel angle" or "H".
